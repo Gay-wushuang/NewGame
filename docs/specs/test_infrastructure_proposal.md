@@ -91,7 +91,7 @@ game/
 │   │   └── BattleManagerTests.cs
 │   └── GlobalUsings.cs         # 全局 using
 └── docs/
-    └── tests/                  # 测试文档
+	└── tests/                  # 测试文档
 ```
 
 ---
@@ -114,24 +114,24 @@ game/
 ```csharp
 public interface IRandomNumberGenerator
 {
-    int RandiRange(int min, int max);
-    void Randomize();
+	int RandiRange(int min, int max);
+	void Randomize();
 }
 
 public class GodotRNG : IRandomNumberGenerator
 {
-    private RandomNumberGenerator _rng = new RandomNumberGenerator();
-    
-    public int RandiRange(int min, int max) => _rng.RandiRange(min, max);
-    public void Randomize() => _rng.Randomize();
+	private RandomNumberGenerator _rng = new RandomNumberGenerator();
+	
+	public int RandiRange(int min, int max) => _rng.RandiRange(min, max);
+	public void Randomize() => _rng.Randomize();
 }
 
 public class MockRNG : IRandomNumberGenerator
 {
-    public int NextValue { get; set; } = 1;
-    
-    public int RandiRange(int min, int max) => NextValue;
-    public void Randomize() { }
+	public int NextValue { get; set; } = 1;
+	
+	public int RandiRange(int min, int max) => NextValue;
+	public void Randomize() { }
 }
 ```
 
@@ -148,10 +148,10 @@ public class MockRNG : IRandomNumberGenerator
 ```csharp
 public static class MathExtensions
 {
-    public static int Clamp(this int value, int min, int max)
-    {
-        return Math.Max(min, Math.Min(max, value));
-    }
+	public static int Clamp(this int value, int min, int max)
+	{
+		return Math.Max(min, Math.Min(max, value));
+	}
 }
 ```
 
@@ -162,17 +162,17 @@ public static class MathExtensions
 ```csharp
 public interface IBattleLogger
 {
-    void Log(string message);
+	void Log(string message);
 }
 
 public class BattleManager
 {
-    public IBattleLogger Logger;
-    
-    public void EmitBattleLog(string message)
-    {
-        Logger?.Log(message);
-    }
+	public IBattleLogger Logger;
+	
+	public void EmitBattleLog(string message)
+	{
+		Logger?.Log(message);
+	}
 }
 ```
 
@@ -186,22 +186,22 @@ public class BattleManager
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-    
-    <IsPackable>false</IsPackable>
-    <IsTestProject>true</IsTestProject>
+	<TargetFramework>net8.0</TargetFramework>
+	<ImplicitUsings>enable</ImplicitUsings>
+	<Nullable>enable</Nullable>
+	
+	<IsPackable>false</IsPackable>
+	<IsTestProject>true</IsTestProject>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="xunit" Version="2.7.2" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.7.2" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.0" />
+	<PackageReference Include="xunit" Version="2.7.2" />
+	<PackageReference Include="xunit.runner.visualstudio" Version="2.7.2" />
+	<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\NewGame.csproj" />
+	<ProjectReference Include="..\NewGame.csproj" />
   </ItemGroup>
 
 </Project>
@@ -223,62 +223,62 @@ global using FluentAssertions; // 可选，增强断言
 ```csharp
 public class PlayerStateTests
 {
-    [Fact]
-    public void TakeDamage_DeductsEnergyFirst()
-    {
-        // Arrange
-        var player = new PlayerState
-        {
-            Hp = 30,
-            MaxHp = 30,
-            Energy = 12,
-            MaxEnergy = 12
-        };
-        
-        // Act
-        player.TakeDamage(14);
-        
-        // Assert
-        player.Energy.Should().Be(0);
-        player.Hp.Should().Be(30);
-    }
-    
-    [Fact]
-    public void TakeDamage_DeductsHpWhenEnergyDepleted()
-    {
-        // Arrange
-        var player = new PlayerState
-        {
-            Hp = 30,
-            MaxHp = 30,
-            Energy = 5,
-            MaxEnergy = 12
-        };
-        
-        // Act
-        player.TakeDamage(14);
-        
-        // Assert
-        player.Energy.Should().Be(0);
-        player.Hp.Should().Be(21);
-    }
-    
-    [Fact]
-    public void RestoreEnergy_RespectsMaxEnergy()
-    {
-        // Arrange
-        var player = new PlayerState
-        {
-            Energy = 10,
-            MaxEnergy = 12
-        };
-        
-        // Act
-        player.RestoreEnergy(5);
-        
-        // Assert
-        player.Energy.Should().Be(12);
-    }
+	[Fact]
+	public void TakeDamage_DeductsEnergyFirst()
+	{
+		// Arrange
+		var player = new PlayerState
+		{
+			Hp = 30,
+			MaxHp = 30,
+			Energy = 12,
+			MaxEnergy = 12
+		};
+		
+		// Act
+		player.TakeDamage(14);
+		
+		// Assert
+		player.Energy.Should().Be(0);
+		player.Hp.Should().Be(30);
+	}
+	
+	[Fact]
+	public void TakeDamage_DeductsHpWhenEnergyDepleted()
+	{
+		// Arrange
+		var player = new PlayerState
+		{
+			Hp = 30,
+			MaxHp = 30,
+			Energy = 5,
+			MaxEnergy = 12
+		};
+		
+		// Act
+		player.TakeDamage(14);
+		
+		// Assert
+		player.Energy.Should().Be(0);
+		player.Hp.Should().Be(21);
+	}
+	
+	[Fact]
+	public void RestoreEnergy_RespectsMaxEnergy()
+	{
+		// Arrange
+		var player = new PlayerState
+		{
+			Energy = 10,
+			MaxEnergy = 12
+		};
+		
+		// Act
+		player.RestoreEnergy(5);
+		
+		// Assert
+		player.Energy.Should().Be(12);
+	}
 }
 ```
 
@@ -287,57 +287,57 @@ public class PlayerStateTests
 ```csharp
 public class DiceRollerTests
 {
-    [Fact]
-    public void Roll_FixedMode_ReturnsFixedValue()
-    {
-        // Arrange
-        var roller = new DiceRoller
-        {
-            Mode = RollMode.Fixed,
-            FixedValue = 3
-        };
-        
-        // Act
-        var result = roller.Roll(6);
-        
-        // Assert
-        result.Should().Be(3);
-    }
-    
-    [Fact]
-    public void Roll_FixedMode_ClampsToValidRange()
-    {
-        // Arrange
-        var roller = new DiceRoller
-        {
-            Mode = RollMode.Fixed,
-            FixedValue = 10
-        };
-        
-        // Act
-        var result = roller.Roll(6);
-        
-        // Assert
-        result.Should().Be(6);
-    }
-    
-    [Fact]
-    public void Roll_RandomMode_ReturnsValidRange()
-    {
-        // Arrange
-        var roller = new DiceRoller
-        {
-            Mode = RollMode.Random
-        };
-        
-        // Act
-        var results = Enumerable.Range(0, 100)
-            .Select(_ => roller.Roll(6))
-            .ToList();
-        
-        // Assert
-        results.All(r => r >= 1 && r <= 6).Should().BeTrue();
-    }
+	[Fact]
+	public void Roll_FixedMode_ReturnsFixedValue()
+	{
+		// Arrange
+		var roller = new DiceRoller
+		{
+			Mode = RollMode.Fixed,
+			FixedValue = 3
+		};
+		
+		// Act
+		var result = roller.Roll(6);
+		
+		// Assert
+		result.Should().Be(3);
+	}
+	
+	[Fact]
+	public void Roll_FixedMode_ClampsToValidRange()
+	{
+		// Arrange
+		var roller = new DiceRoller
+		{
+			Mode = RollMode.Fixed,
+			FixedValue = 10
+		};
+		
+		// Act
+		var result = roller.Roll(6);
+		
+		// Assert
+		result.Should().Be(6);
+	}
+	
+	[Fact]
+	public void Roll_RandomMode_ReturnsValidRange()
+	{
+		// Arrange
+		var roller = new DiceRoller
+		{
+			Mode = RollMode.Random
+		};
+		
+		// Act
+		var results = Enumerable.Range(0, 100)
+			.Select(_ => roller.Roll(6))
+			.ToList();
+		
+		// Assert
+		results.All(r => r >= 1 && r <= 6).Should().BeTrue();
+	}
 }
 ```
 
@@ -346,49 +346,49 @@ public class DiceRollerTests
 ```csharp
 public class CardDataTests
 {
-    [Fact]
-    public void EnergyStrike_CalculatesDamageCorrectly()
-    {
-        // Arrange
-        var card = new CardInstance(CardData.EnergyStrike);
-        var dice = new DiceInstance(6) { Value = 5 };
-        
-        // Act
-        var damage = card.CalculateDamage(dice);
-        
-        // Assert
-        damage.Should().Be(7); // 5 + 2
-    }
-    
-    [Fact]
-    public void BreakCore_AppliesVulnerableWhenDiceHigh()
-    {
-        // Arrange
-        var card = new CardInstance(CardData.BreakCore);
-        var dice = new DiceInstance(6) { Value = 5 };
-        var enemy = new EnemyState("TestEnemy", 100);
-        
-        // Act
-        card.Data.ApplyEffect?.Invoke(card, dice, enemy);
-        
-        // Assert
-        enemy.GetVulnerableStacks().Should().Be(2);
-    }
-    
-    [Fact]
-    public void BreakCore_DoesNotApplyVulnerableWhenDiceLow()
-    {
-        // Arrange
-        var card = new CardInstance(CardData.BreakCore);
-        var dice = new DiceInstance(6) { Value = 4 };
-        var enemy = new EnemyState("TestEnemy", 100);
-        
-        // Act
-        card.Data.ApplyEffect?.Invoke(card, dice, enemy);
-        
-        // Assert
-        enemy.GetVulnerableStacks().Should().Be(0);
-    }
+	[Fact]
+	public void EnergyStrike_CalculatesDamageCorrectly()
+	{
+		// Arrange
+		var card = new CardInstance(CardData.EnergyStrike);
+		var dice = new DiceInstance(6) { Value = 5 };
+		
+		// Act
+		var damage = card.CalculateDamage(dice);
+		
+		// Assert
+		damage.Should().Be(7); // 5 + 2
+	}
+	
+	[Fact]
+	public void BreakCore_AppliesVulnerableWhenDiceHigh()
+	{
+		// Arrange
+		var card = new CardInstance(CardData.BreakCore);
+		var dice = new DiceInstance(6) { Value = 5 };
+		var enemy = new EnemyState("TestEnemy", 100);
+		
+		// Act
+		card.Data.ApplyEffect?.Invoke(card, dice, enemy);
+		
+		// Assert
+		enemy.GetVulnerableStacks().Should().Be(2);
+	}
+	
+	[Fact]
+	public void BreakCore_DoesNotApplyVulnerableWhenDiceLow()
+	{
+		// Arrange
+		var card = new CardInstance(CardData.BreakCore);
+		var dice = new DiceInstance(6) { Value = 4 };
+		var enemy = new EnemyState("TestEnemy", 100);
+		
+		// Act
+		card.Data.ApplyEffect?.Invoke(card, dice, enemy);
+		
+		// Assert
+		enemy.GetVulnerableStacks().Should().Be(0);
+	}
 }
 ```
 
@@ -421,30 +421,30 @@ name: Test
 
 on:
   push:
-    branches: [ develop, main ]
+	branches: [ develop, main ]
   pull_request:
-    branches: [ develop ]
+	branches: [ develop ]
 
 jobs:
   test:
-    runs-on: ubuntu-latest
-    
-    steps:
-    - uses: actions/checkout@v4
-    
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: '8.0.x'
-    
-    - name: Restore dependencies
-      run: dotnet restore
-    
-    - name: Build
-      run: dotnet build --no-restore
-    
-    - name: Test
-      run: dotnet test --no-build --verbosity normal
+	runs-on: ubuntu-latest
+	
+	steps:
+	- uses: actions/checkout@v4
+	
+	- name: Setup .NET
+	  uses: actions/setup-dotnet@v4
+	  with:
+		dotnet-version: '8.0.x'
+	
+	- name: Restore dependencies
+	  run: dotnet restore
+	
+	- name: Build
+	  run: dotnet build --no-restore
+	
+	- name: Test
+	  run: dotnet test --no-build --verbosity normal
 ```
 
 ---

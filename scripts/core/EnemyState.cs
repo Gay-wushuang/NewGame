@@ -8,7 +8,7 @@ public class EnemyState
     public int Hp;
     public int Shield;
     public EnemyIntent CurrentIntent;
-    public Dictionary<StatusType, int> Statuses = new Dictionary<StatusType, int>();
+    public Dictionary<StatusType, StatusInstance> Statuses = new Dictionary<StatusType, StatusInstance>();
     
     public EnemyState(string name, int maxHp)
     {
@@ -19,36 +19,79 @@ public class EnemyState
         CurrentIntent = new EnemyIntent();
     }
     
+    public int GetStatusStacks(StatusType type)
+    {
+        return Statuses.TryGetValue(type, out StatusInstance status) ? status.Stacks : 0;
+    }
+    
+    public void AddStatus(StatusType type, int stacks, int duration = 0)
+    {
+        if (!Statuses.ContainsKey(type))
+        {
+            Statuses[type] = new StatusInstance(type, stacks, duration);
+        }
+        else
+        {
+            Statuses[type].Stacks += stacks;
+            if (duration > 0)
+            {
+                Statuses[type].Duration = duration;
+            }
+        }
+    }
+    
+    public void ReduceStatus(StatusType type, int stacks)
+    {
+        if (Statuses.ContainsKey(type))
+        {
+            Statuses[type].Stacks = Mathf.Max(0, Statuses[type].Stacks - stacks);
+            if (Statuses[type].Stacks == 0)
+            {
+                Statuses.Remove(type);
+            }
+        }
+    }
+    
     public int GetVulnerableStacks()
     {
-        return Statuses.TryGetValue(StatusType.Vulnerable, out int stacks) ? stacks : 0;
+        return GetStatusStacks(StatusType.Vulnerable);
     }
     
     public void AddVulnerable(int stacks)
     {
-        if (!Statuses.ContainsKey(StatusType.Vulnerable))
-        {
-            Statuses[StatusType.Vulnerable] = 0;
-        }
-        Statuses[StatusType.Vulnerable] += stacks;
+        AddStatus(StatusType.Vulnerable, stacks, 0);
     }
     
     public void ReduceVulnerable(int stacks)
     {
-        if (Statuses.ContainsKey(StatusType.Vulnerable))
-        {
-            Statuses[StatusType.Vulnerable] = Mathf.Max(0, Statuses[StatusType.Vulnerable] - stacks);
-            if (Statuses[StatusType.Vulnerable] == 0)
-            {
-                Statuses.Remove(StatusType.Vulnerable);
-            }
-        }
+        ReduceStatus(StatusType.Vulnerable, stacks);
+    }
+    
+    public int GetWeakStacks()
+    {
+        return GetStatusStacks(StatusType.Weak);
+    }
+    
+    public void AddWeak(int stacks)
+    {
+        AddStatus(StatusType.Weak, stacks, 2);
+    }
+    
+    public int GetSlowStacks()
+    {
+        return GetStatusStacks(StatusType.Slow);
+    }
+    
+    public void AddSlow(int stacks)
+    {
+        AddStatus(StatusType.Slow, stacks, 2);
     }
     
     public int CalculateDamage(int baseDamage)
     {
         int vulnerable = GetVulnerableStacks();
-        return baseDamage + vulnerable;
+        int weak = GetWeakStacks();
+        return baseDamage + vulnerable - weak;
     }
     
     public int TakeDamage(int damage)
@@ -69,10 +112,34 @@ public class EnemyState
     
     public void EndTurn()
     {
-        int vulnerable = GetVulnerableStacks();
-        if (vulnerable > 0)
+        List<StatusType> expiredStatuses = new List<StatusType>();
+        
+        foreach (var pair in Statuses)
         {
-            ReduceVulnerable(1);
+            if (pair.Value.Duration > 0)
+            {
+                pair.Value.Duration--;
+                if (pair.Value.Duration <= 0)
+                {
+                    expiredStatuses.Add(pair.Key);
+                }
+            }
+            else if (pair.Key == StatusType.Vulnerable)
+            {
+                ReduceStatus(pair.Key, 1);
+                if (pair.Value.Stacks <= 0)
+                {
+                    expiredStatuses.Add(pair.Key);
+                }
+            }
+        }
+        
+        foreach (var statusType in expiredStatuses)
+        {
+            if (Statuses.ContainsKey(statusType) && Statuses[statusType].Stacks <= 0)
+            {
+                Statuses.Remove(statusType);
+            }
         }
     }
     

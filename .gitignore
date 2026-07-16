@@ -14,3 +14,9 @@ obj/
 
 # Godot CSV import generated translation resources
 data/**/*.translation
+
+# Godot script UID files
+*.cs.uid
+
+# Old backup files
+*.old

@@ -1,11 +1,11 @@
-id,name,type,target,energy_cost,dice_cost,dice_type,damage_formula,effect_condition,effect_description,description,test_cases
-energy_strike,EnergyStrike,Attack,Enemy,1,1,Any,dice + 2,,,消耗 1 Energy 和 1 枚默认骰；打出时掷骰，造成 骰点 + 2 伤害。,Fixed Roll=1:伤害3;Fixed Roll=6:伤害8
-break_core,BreakCore,Attack,Enemy,3,1,Any,8,dice >= 5,施加 2 层破甲,消耗 3 Energy 和 1 枚默认骰；造成 8 伤害；骰点 >= 5 时施加 2 层破甲。,Fixed Roll=4:伤害8无破甲;Fixed Roll=5:伤害8+2破甲
-quick_strike,QuickStrike,Attack,Enemy,0,0,Any,4,,,无需消耗；造成 4 点固定伤害。,无需骰子能量;固定伤害4
-double_strike,DoubleStrike,Attack,Enemy,2,2,Any,floor((dice1 + dice2) * 1.5),,,消耗 2 Energy 和 2 枚默认骰；造成 floor((骰点1 + 骰点2) × 1.5) 伤害。,需2枚骰子;双骰子联动
-defensive_posture,DefensivePosture,Skill,Player,1,0,Any,,,恢复 3 Energy,消耗 1 Energy；恢复 3 Energy。,消耗1恢复3;净+2
-dice_boost,DiceBoost,Skill,Player,2,0,Any,,,获得 1 枚额外骰子,消耗 2 Energy；获得 1 枚额外骰子（本回合可用）。,消耗2能量;骰子+1
-power_strike,PowerStrike,Attack,Enemy,4,2,Any,(dice1 + dice2) + 6,dice_sum >= 9,额外造成 5 伤害,消耗 4 Energy 和 2 枚默认骰；造成 (骰点1 + 骰点2) + 6 伤害；骰点总和 >= 9 时额外造成 5 伤害。,需2骰4能量;总和>=9加5伤害
-vulnerable_strike,VulnerableStrike,Attack,Enemy,2,1,Any,dice + 1,dice >= 3,施加 1 层破甲,消耗 2 Energy 和 1 枚默认骰；造成 骰点 + 1 伤害；骰点 >= 3 时施加 1 层破甲。,Fixed Roll=2:伤害3无破甲;Fixed Roll=3:伤害4+1破甲
-energy_surge,EnergySurge,Skill,Player,0,1,Any,,,恢复 dice + 1 Energy,消耗 1 枚默认骰；恢复 骰点 + 1 Energy。,无需能量需1骰;Fixed Roll=1:恢复2;Fixed Roll=6:恢复7
-critical_hit,CriticalHit,Attack,Enemy,2,1,Any,dice + 3,dice >= 4,伤害翻倍,消耗 2 Energy 和 1 枚默认骰；造成 骰点 + 3 伤害；骰点 >= 4 时伤害翻倍。,Fixed Roll=3:伤害6;Fixed Roll=4:伤害14
+id,name,type,category,subtype,target,energy_cost,dice_cost,dice_type,damage_formula,effect_condition,effect_description,buff_type,debuff_type,effect_amount,duration,shield_value,counter_damage,visual_key,border_color,description,test_cases
+energy_strike,EnergyStrike,Attack,Basic,Attack,Enemy,1,1,Any,dice + 2,,,,,,,,attack_sword,#FF4444,消耗 1 Energy 和 1 枚默认骰；打出时掷骰，造成 骰点 + 2 伤害。,Fixed Roll=1:伤害3;Fixed Roll=6:伤害8
+break_core,BreakCore,Attack,Basic,Attack,Enemy,3,1,Any,8,dice >= 5,施加 2 层破甲,,Vulnerable,2,,,,attack_axe,#FF4444,消耗 3 Energy 和 1 枚默认骰；造成 8 伤害；骰点 >= 5 时施加 2 层破甲。,Fixed Roll=4:伤害8无破甲;Fixed Roll=5:伤害8+2破甲
+quick_strike,QuickStrike,Attack,Basic,Attack,Enemy,0,0,Any,4,,,,,,,,attack_fist,#FF4444,无需消耗；造成 4 点固定伤害。,无需骰子能量;固定伤害4
+double_strike,DoubleStrike,Attack,Basic,Attack,Enemy,2,2,Any,floor((dice1 + dice2) * 1.5),,,Vulnerable,2,,,,attack_double,#FF4444,消耗 2 Energy 和 2 枚默认骰；造成 floor((骰点1 + 骰点2) × 1.5) 伤害。,需2枚骰子;双骰子联动
+defensive_posture,DefensivePosture,Skill,Skill,PositiveBuff,Player,1,0,Any,,,,EnergyRegen,,3,2,,,,skill_defense,#44FF44,消耗 1 Energy；恢复 3 Energy。,消耗1恢复3;净+2
+dice_boost,DiceBoost,Skill,Skill,PositiveBuff,Player,2,0,Any,,,,DiceBonus,,1,1,,,,skill_dice,#44FF44,消耗 2 Energy；获得 1 枚额外骰子（本回合可用）。,消耗2能量;骰子+1
+power_strike,PowerStrike,Attack,Basic,Attack,Enemy,4,2,Any,(dice1 + dice2) + 6,dice_sum >= 9,额外造成 5 伤害,,,,5,,,,attack_power,#FF4444,消耗 4 Energy 和 2 枚默认骰；造成 (骰点1 + 骰点2) + 6 伤害；骰点总和 >= 9 时额外造成 5 伤害。,需2骰4能量;总和>=9加5伤害
+vulnerable_strike,VulnerableStrike,Attack,Basic,Attack,Enemy,2,1,Any,dice + 1,dice >= 3,施加 1 层破甲,,Vulnerable,1,,,,attack_pierce,#FF4444,消耗 2 Energy 和 1 枚默认骰；造成 骰点 + 1 伤害；骰点 >= 3 时施加 1 层破甲。,Fixed Roll=2:伤害3无破甲;Fixed Roll=3:伤害4+1破甲
+energy_surge,EnergySurge,Skill,Consumable,BattleLevelConsumable,Player,0,1,Any,,,,EnergyRegen,,1,,,,skill_energy,#FF8800,消耗 1 枚默认骰；恢复 骰点 + 1 Energy。,无需能量需1骰;Fixed Roll=1:恢复2;Fixed Roll=6:恢复7
+critical_hit,CriticalHit,Attack,Basic,Attack,Enemy,2,1,Any,dice + 3,dice >= 4,伤害翻倍,,,,,,,,attack_critical,#FF4444,消耗 2 Energy 和 1 枚默认骰；造成 骰点 + 3 伤害；骰点 >= 4 时伤害翻倍。,Fixed Roll=3:伤害6;Fixed Roll=4:伤害14

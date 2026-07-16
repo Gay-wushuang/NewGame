@@ -17,234 +17,11 @@ script = ExtResource("3")
 [node name="BattleManager" type="Node" parent="." unique_id=2]
 script = ExtResource("1")
 
-[node name="ConfigPanel" type="Panel" parent="." unique_id=3]
-layout_mode = 1
-anchors_preset = 9
-anchor_bottom = 1.0
-offset_right = 190.0
-grow_horizontal = 0
-grow_vertical = 2
-
-[node name="ConfigLabel" type="Label" parent="ConfigPanel" unique_id=4]
-layout_mode = 1
-anchors_preset = -1
-anchor_right = 1.0
-offset_top = 10.0
-offset_bottom = 35.0
-grow_horizontal = 2
-text = "训练场配置"
-horizontal_alignment = 1
-
-[node name="ConfigScroll" type="ScrollContainer" parent="ConfigPanel" unique_id=5]
-layout_mode = 1
-anchors_preset = -1
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 8.0
-offset_top = 45.0
-offset_right = -8.0
-offset_bottom = -10.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="ConfigContainer" type="VBoxContainer" parent="ConfigPanel/ConfigScroll" unique_id=6]
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="PlayerHpRow" type="HBoxContainer" parent="ConfigPanel/ConfigScroll/ConfigContainer" unique_id=7]
-layout_mode = 2
-
-[node name="PlayerHpLabel" type="Label" parent="ConfigPanel/ConfigScroll/ConfigContainer/PlayerHpRow" unique_id=8]
-layout_mode = 2
-text = "玩家 HP:"
-
-[node name="PlayerHpInput" type="LineEdit" parent="ConfigPanel/ConfigScroll/ConfigContainer/PlayerHpRow" unique_id=9]
-custom_minimum_size = Vector2(60, 24)
-layout_mode = 2
-text = "10"
-
-[node name="PlayerEnergyRow" type="HBoxContainer" parent="ConfigPanel/ConfigScroll/ConfigContainer" unique_id=10]
-layout_mode = 2
-
-[node name="PlayerEnergyLabel" type="Label" parent="ConfigPanel/ConfigScroll/ConfigContainer/PlayerEnergyRow" unique_id=11]
-layout_mode = 2
-text = "玩家 Energy:"
-
-[node name="PlayerEnergyInput" type="LineEdit" parent="ConfigPanel/ConfigScroll/ConfigContainer/PlayerEnergyRow" unique_id=12]
-custom_minimum_size = Vector2(60, 24)
-layout_mode = 2
-text = "30"
-
-[node name="DiceCountRow" type="HBoxContainer" parent="ConfigPanel/ConfigScroll/ConfigContainer" unique_id=13]
-layout_mode = 2
-
-[node name="DiceCountLabel" type="Label" parent="ConfigPanel/ConfigScroll/ConfigContainer/DiceCountRow" unique_id=14]
-layout_mode = 2
-text = "骰子数量:"
-
-[node name="DiceCountInput" type="LineEdit" parent="ConfigPanel/ConfigScroll/ConfigContainer/DiceCountRow" unique_id=15]
-custom_minimum_size = Vector2(60, 24)
-layout_mode = 2
-text = "2"
-
-[node name="DiceSidesRow" type="HBoxContainer" parent="ConfigPanel/ConfigScroll/ConfigContainer" unique_id=16]
-layout_mode = 2
-
-[node name="DiceSidesLabel" type="Label" parent="ConfigPanel/ConfigScroll/ConfigContainer/DiceSidesRow" unique_id=17]
-layout_mode = 2
-text = "骰子面数:"
-
-[node name="DiceSidesInput" type="LineEdit" parent="ConfigPanel/ConfigScroll/ConfigContainer/DiceSidesRow" unique_id=18]
-custom_minimum_size = Vector2(60, 24)
-layout_mode = 2
-text = "6"
-
-[node name="RollModeLabel" type="Label" parent="ConfigPanel/ConfigScroll/ConfigContainer" unique_id=19]
-layout_mode = 2
-text = "掷骰模式:"
-
-[node name="RollModeRow" type="HBoxContainer" parent="ConfigPanel/ConfigScroll/ConfigContainer" unique_id=20]
-layout_mode = 2
-
-[node name="RollModeRandomBtn" type="Button" parent="ConfigPanel/ConfigScroll/ConfigContainer/RollModeRow" unique_id=21]
-custom_minimum_size = Vector2(80, 24)
-layout_mode = 2
-toggle_mode = true
-text = "随机"
-
-[node name="RollModeFixedBtn" type="Button" parent="ConfigPanel/ConfigScroll/ConfigContainer/RollModeRow" unique_id=22]
-custom_minimum_size = Vector2(80, 24)
-layout_mode = 2
-toggle_mode = true
-text = "固定"
-
-[node name="FixedRollRow" type="HBoxContainer" parent="ConfigPanel/ConfigScroll/ConfigContainer" unique_id=23]
-layout_mode = 2
-
-[node name="FixedRollLabel" type="Label" parent="ConfigPanel/ConfigScroll/ConfigContainer/FixedRollRow" unique_id=24]
-layout_mode = 2
-text = "固定骰点:"
-
-[node name="FixedRollInput" type="LineEdit" parent="ConfigPanel/ConfigScroll/ConfigContainer/FixedRollRow" unique_id=25]
-custom_minimum_size = Vector2(60, 24)
-layout_mode = 2
-text = "1"
-
-[node name="EnemyLabel" type="Label" parent="ConfigPanel/ConfigScroll/ConfigContainer" unique_id=26]
-layout_mode = 2
-text = "敌人类型:"
-
-[node name="EnemyRow" type="HBoxContainer" parent="ConfigPanel/ConfigScroll/ConfigContainer" unique_id=27]
-layout_mode = 2
-
-[node name="EnemyDummyBtn" type="Button" parent="ConfigPanel/ConfigScroll/ConfigContainer/EnemyRow" unique_id=28]
-custom_minimum_size = Vector2(78, 24)
-layout_mode = 2
-toggle_mode = true
-text = "训练假人"
-
-[node name="EnemyBeastBtn" type="Button" parent="ConfigPanel/ConfigScroll/ConfigContainer/EnemyRow" unique_id=29]
-custom_minimum_size = Vector2(78, 24)
-layout_mode = 2
-toggle_mode = true
-text = "训练野兽"
-
-[node name="EnemyHpRow" type="HBoxContainer" parent="ConfigPanel/ConfigScroll/ConfigContainer" unique_id=30]
-layout_mode = 2
-
-[node name="EnemyHpLabel" type="Label" parent="ConfigPanel/ConfigScroll/ConfigContainer/EnemyHpRow" unique_id=31]
-layout_mode = 2
-text = "敌人 HP:"
-
-[node name="EnemyHpInput" type="LineEdit" parent="ConfigPanel/ConfigScroll/ConfigContainer/EnemyHpRow" unique_id=32]
-custom_minimum_size = Vector2(60, 24)
-layout_mode = 2
-text = "20"
-
-[node name="EnemyAttackRow" type="HBoxContainer" parent="ConfigPanel/ConfigScroll/ConfigContainer" unique_id=33]
-layout_mode = 2
-
-[node name="EnemyAttackLabel" type="Label" parent="ConfigPanel/ConfigScroll/ConfigContainer/EnemyAttackRow" unique_id=34]
-layout_mode = 2
-text = "敌人攻击:"
-
-[node name="EnemyAttackInput" type="LineEdit" parent="ConfigPanel/ConfigScroll/ConfigContainer/EnemyAttackRow" unique_id=35]
-custom_minimum_size = Vector2(60, 24)
-layout_mode = 2
-text = "14"
-
-[node name="EnemyShieldRow" type="HBoxContainer" parent="ConfigPanel/ConfigScroll/ConfigContainer" unique_id=36]
-layout_mode = 2
-
-[node name="EnemyShieldLabel" type="Label" parent="ConfigPanel/ConfigScroll/ConfigContainer/EnemyShieldRow" unique_id=37]
-layout_mode = 2
-text = "敌人护盾:"
-
-[node name="EnemyShieldInput" type="LineEdit" parent="ConfigPanel/ConfigScroll/ConfigContainer/EnemyShieldRow" unique_id=38]
-custom_minimum_size = Vector2(60, 24)
-layout_mode = 2
-text = "0"
-
-[node name="EnemyIntentLabel" type="Label" parent="ConfigPanel/ConfigScroll/ConfigContainer" unique_id=39]
-layout_mode = 2
-text = "敌人意图:"
-
-[node name="EnemyIntentRow1" type="HBoxContainer" parent="ConfigPanel/ConfigScroll/ConfigContainer" unique_id=40]
-layout_mode = 2
-
-[node name="EnemyIntentAttackBtn" type="Button" parent="ConfigPanel/ConfigScroll/ConfigContainer/EnemyIntentRow1" unique_id=41]
-custom_minimum_size = Vector2(55, 24)
-layout_mode = 2
-toggle_mode = true
-text = "攻击"
-
-[node name="EnemyIntentDefendBtn" type="Button" parent="ConfigPanel/ConfigScroll/ConfigContainer/EnemyIntentRow1" unique_id=42]
-custom_minimum_size = Vector2(55, 24)
-layout_mode = 2
-toggle_mode = true
-text = "防御"
-
-[node name="EnemyIntentRow2" type="HBoxContainer" parent="ConfigPanel/ConfigScroll/ConfigContainer" unique_id=43]
-layout_mode = 2
-
-[node name="EnemyIntentBuffBtn" type="Button" parent="ConfigPanel/ConfigScroll/ConfigContainer/EnemyIntentRow2" unique_id=44]
-custom_minimum_size = Vector2(55, 24)
-layout_mode = 2
-toggle_mode = true
-text = "增益"
-
-[node name="EnemyIntentDebuffBtn" type="Button" parent="ConfigPanel/ConfigScroll/ConfigContainer/EnemyIntentRow2" unique_id=45]
-custom_minimum_size = Vector2(55, 24)
-layout_mode = 2
-toggle_mode = true
-text = "减益"
-
-[node name="EnemyIntentValueRow" type="HBoxContainer" parent="ConfigPanel/ConfigScroll/ConfigContainer" unique_id=46]
-layout_mode = 2
-
-[node name="EnemyIntentValueLabel" type="Label" parent="ConfigPanel/ConfigScroll/ConfigContainer/EnemyIntentValueRow" unique_id=47]
-layout_mode = 2
-text = "意图数值:"
-
-[node name="EnemyIntentValueInput" type="LineEdit" parent="ConfigPanel/ConfigScroll/ConfigContainer/EnemyIntentValueRow" unique_id=48]
-custom_minimum_size = Vector2(60, 24)
-layout_mode = 2
-text = "14"
-
-[node name="ResetButton" type="Button" parent="ConfigPanel/ConfigScroll/ConfigContainer" unique_id=49]
-custom_minimum_size = Vector2(100, 30)
-layout_mode = 2
-text = "重置战斗"
-
 [node name="BattleUI" type="Control" parent="." unique_id=50]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 200.0
-offset_top = 4.0
-offset_right = -310.0
-offset_bottom = -4.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("2")
@@ -301,6 +78,11 @@ text = "HP: 10/10"
 [node name="PlayerEnergyLabel" type="Label" parent="BattleUI/TopPanel/PlayerStatus" unique_id=56]
 layout_mode = 2
 text = "Energy: 30/30"
+
+[node name="PlayerShieldLabel" type="Label" parent="BattleUI/TopPanel/PlayerStatus" unique_id=96]
+visible = false
+layout_mode = 2
+text = "护盾: 0"
 
 [node name="EnemyStatus" type="VBoxContainer" parent="BattleUI/TopPanel" unique_id=57]
 layout_mode = 1
@@ -404,9 +186,9 @@ grow_horizontal = 2
 text = "手牌"
 horizontal_alignment = 2
 
-[node name="CardContainer" type="HBoxContainer" parent="BattleUI/CardPanel" unique_id=68]
+[node name="PileRow" type="HBoxContainer" parent="BattleUI/CardPanel" unique_id=75]
 layout_mode = 1
-anchors_preset = -1
+anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = 10.0
@@ -415,7 +197,69 @@ offset_right = -10.0
 offset_bottom = -10.0
 grow_horizontal = 2
 grow_vertical = 2
+
+[node name="DrawPileView" type="VBoxContainer" parent="BattleUI/CardPanel/PileRow" unique_id=76]
+custom_minimum_size = Vector2(80, 100)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="DrawPileBg" type="ColorRect" parent="BattleUI/CardPanel/PileRow/DrawPileView" unique_id=77]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+color = Color(0.1, 0.15, 0.4, 1)
+
+[node name="DrawPileLabel" type="Label" parent="BattleUI/CardPanel/PileRow/DrawPileView" unique_id=78]
+layout_mode = 2
+text = "抽牌堆"
+
+[node name="DrawPileCount" type="Label" parent="BattleUI/CardPanel/PileRow/DrawPileView" unique_id=79]
+layout_mode = 2
+text = "0"
+
+[node name="CardContainer" type="HBoxContainer" parent="BattleUI/CardPanel/PileRow" unique_id=68]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
 alignment = 1
+
+[node name="DiscardPileView" type="VBoxContainer" parent="BattleUI/CardPanel/PileRow" unique_id=80]
+custom_minimum_size = Vector2(80, 100)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="DiscardPileBg" type="ColorRect" parent="BattleUI/CardPanel/PileRow/DiscardPileView" unique_id=81]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+color = Color(0.4, 0.1, 0.1, 1)
+
+[node name="DiscardPileLabel" type="Label" parent="BattleUI/CardPanel/PileRow/DiscardPileView" unique_id=82]
+layout_mode = 2
+text = "弃牌堆"
+
+[node name="DiscardPileCount" type="Label" parent="BattleUI/CardPanel/PileRow/DiscardPileView" unique_id=83]
+layout_mode = 2
+text = "0"
+
+[node name="ExhaustPileView" type="VBoxContainer" parent="BattleUI/CardPanel/PileRow" unique_id=88]
+custom_minimum_size = Vector2(80, 100)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="ExhaustPileBg" type="ColorRect" parent="BattleUI/CardPanel/PileRow/ExhaustPileView" unique_id=89]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+color = Color(0.4, 0.1, 0.4, 1)
+
+[node name="ExhaustPileLabel" type="Label" parent="BattleUI/CardPanel/PileRow/ExhaustPileView" unique_id=90]
+layout_mode = 2
+text = "消耗堆"
+
+[node name="ExhaustPileCount" type="Label" parent="BattleUI/CardPanel/PileRow/ExhaustPileView" unique_id=91]
+layout_mode = 2
+text = "0"
 
 [node name="EndTurnButton" type="Button" parent="BattleUI" unique_id=69]
 custom_minimum_size = Vector2(100, 40)
@@ -444,7 +288,7 @@ grow_horizontal = 2
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="CardPreviewBackground" type="ColorRect" parent="BattleUI" unique_id=71]
+[node name="CardPreviewPanel" type="PanelContainer" parent="BattleUI" unique_id=71]
 visible = false
 layout_mode = 1
 anchors_preset = -1
@@ -452,20 +296,284 @@ offset_left = 20.0
 offset_top = 280.0
 offset_right = 360.0
 offset_bottom = 470.0
-color = Color(0.02, 0.025, 0.04, 0.92)
 
-[node name="CardPreviewLabel" type="Label" parent="BattleUI" unique_id=72]
+[node name="PreviewVBox" type="VBoxContainer" parent="BattleUI/CardPreviewPanel" unique_id=92]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="CostRow" type="HBoxContainer" parent="BattleUI/CardPreviewPanel/PreviewVBox" unique_id=93]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="EnergyCostLabel" type="Label" parent="BattleUI/CardPreviewPanel/PreviewVBox/CostRow" unique_id=94]
+layout_mode = 2
+text = "Energy: 0"
+
+[node name="DiceCostLabel" type="Label" parent="BattleUI/CardPreviewPanel/PreviewVBox/CostRow" unique_id=95]
+layout_mode = 2
+text = "Dice: 无需"
+
+[node name="EffectRow" type="HBoxContainer" parent="BattleUI/CardPreviewPanel/PreviewVBox" unique_id=96]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="DamageRangeLabel" type="Label" parent="BattleUI/CardPreviewPanel/PreviewVBox/EffectRow" unique_id=97]
+layout_mode = 2
+text = "伤害: 无"
+
+[node name="EffectLabel" type="Label" parent="BattleUI/CardPreviewPanel/PreviewVBox/EffectRow" unique_id=98]
+layout_mode = 2
+text = "效果: 无"
+
+[node name="DescriptionLabel" type="Label" parent="BattleUI/CardPreviewPanel/PreviewVBox" unique_id=99]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+autowrap_mode = 1
+text = "描述"
+
+[node name="OverlayLayer" type="CanvasLayer" parent="." unique_id=84]
+layer = 10
+
+[node name="DimMask" type="ColorRect" parent="OverlayLayer" unique_id=85]
 visible = false
-custom_minimum_size = Vector2(312, 172)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.5)
+mouse_filter = 0
+
+[node name="ConfigFloatingPanel" type="Panel" parent="OverlayLayer" unique_id=3]
+visible = false
+layout_mode = 1
+anchors_preset = 9
+anchor_bottom = 1.0
+offset_right = 200.0
+grow_horizontal = 0
+grow_vertical = 2
+
+[node name="ConfigLabel" type="Label" parent="OverlayLayer/ConfigFloatingPanel" unique_id=4]
 layout_mode = 1
 anchors_preset = -1
-offset_left = 34.0
-offset_top = 294.0
-offset_right = 346.0
-offset_bottom = 456.0
-autowrap_mode = 1
+anchor_right = 1.0
+offset_top = 10.0
+offset_bottom = 35.0
+grow_horizontal = 2
+text = "训练场配置"
+horizontal_alignment = 1
 
-[node name="BattleLogPanel" type="Control" parent="." unique_id=73]
+[node name="ConfigScroll" type="ScrollContainer" parent="OverlayLayer/ConfigFloatingPanel" unique_id=5]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = 45.0
+offset_right = -8.0
+offset_bottom = -10.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ConfigContainer" type="VBoxContainer" parent="OverlayLayer/ConfigFloatingPanel/ConfigScroll" unique_id=6]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="PlayerHpRow" type="HBoxContainer" parent="OverlayLayer/ConfigFloatingPanel/ConfigScroll/ConfigContainer" unique_id=7]
+layout_mode = 2
+
+[node name="PlayerHpLabel" type="Label" parent="OverlayLayer/ConfigFloatingPanel/ConfigScroll/ConfigContainer/PlayerHpRow" unique_id=8]
+layout_mode = 2
+text = "玩家 HP:"
+
+[node name="PlayerHpInput" type="LineEdit" parent="OverlayLayer/ConfigFloatingPanel/ConfigScroll/ConfigContainer/PlayerHpRow" unique_id=9]
+custom_minimum_size = Vector2(60, 24)
+layout_mode = 2
+text = "10"
+
+[node name="PlayerEnergyRow" type="HBoxContainer" parent="OverlayLayer/ConfigFloatingPanel/ConfigScroll/ConfigContainer" unique_id=10]
+layout_mode = 2
+
+[node name="PlayerEnergyLabel" type="Label" parent="OverlayLayer/ConfigFloatingPanel/ConfigScroll/ConfigContainer/PlayerEnergyRow" unique_id=11]
+layout_mode = 2
+text = "玩家 Energy:"
+
+[node name="PlayerEnergyInput" type="LineEdit" parent="OverlayLayer/ConfigFloatingPanel/ConfigScroll/ConfigContainer/PlayerEnergyRow" unique_id=12]
+custom_minimum_size = Vector2(60, 24)
+layout_mode = 2
+text = "30"
+
+[node name="DiceCountRow" type="HBoxContainer" parent="OverlayLayer/ConfigFloatingPanel/ConfigScroll/ConfigContainer" unique_id=13]
+layout_mode = 2
+
+[node name="DiceCountLabel" type="Label" parent="OverlayLayer/ConfigFloatingPanel/ConfigScroll/ConfigContainer/DiceCountRow" unique_id=14]
+layout_mode = 2
+text = "骰子数量:"
+
+[node name="DiceCountInput" type="LineEdit" parent="OverlayLayer/ConfigFloatingPanel/ConfigScroll/ConfigContainer/DiceCountRow" unique_id=15]
+custom_minimum_size = Vector2(60, 24)
+layout_mode = 2
+text = "2"
+
+[node name="DiceSidesRow" type="HBoxContainer" parent="OverlayLayer/ConfigFloatingPanel/ConfigScroll/ConfigContainer" unique_id=16]
+layout_mode = 2
+
+[node name="DiceSidesLabel" type="Label" parent="OverlayLayer/ConfigFloatingPanel/ConfigScroll/ConfigContainer/DiceSidesRow" unique_id=17]
+layout_mode = 2
+text = "骰子面数:"
+
+[node name="DiceSidesInput" type="LineEdit" parent="OverlayLayer/ConfigFloatingPanel/ConfigScroll/ConfigContainer/DiceSidesRow" unique_id=18]
+custom_minimum_size = Vector2(60, 24)
+layout_mode = 2
+text = "6"
+
+[node name="RollModeLabel" type="Label" parent="OverlayLayer/ConfigFloatingPanel/ConfigScroll/ConfigContainer" unique_id=19]
+layout_mode = 2
+text = "掷骰模式:"
+
+[node name="RollModeRow" type="HBoxContainer" parent="OverlayLayer/ConfigFloatingPanel/ConfigScroll/ConfigContainer" unique_id=20]
+layout_mode = 2
+
+[node name="RollModeRandomBtn" type="Button" parent="OverlayLayer/ConfigFloatingPanel/ConfigScroll/ConfigContainer/RollModeRow" unique_id=21]
+custom_minimum_size = Vector2(80, 24)
+layout_mode = 2
+toggle_mode = true
+text = "随机"
+
+[node name="RollModeFixedBtn" type="Button" parent="OverlayLayer/ConfigFloatingPanel/ConfigScroll/ConfigContainer/RollModeRow" unique_id=22]
+custom_minimum_size = Vector2(80, 24)
+layout_mode = 2
+toggle_mode = true
+text = "固定"
+
+[node name="FixedRollRow" type="HBoxContainer" parent="OverlayLayer/ConfigFloatingPanel/ConfigScroll/ConfigContainer" unique_id=23]
+layout_mode = 2
+
+[node name="FixedRollLabel" type="Label" parent="OverlayLayer/ConfigFloatingPanel/ConfigScroll/ConfigContainer/FixedRollRow" unique_id=24]
+layout_mode = 2
+text = "固定骰点:"
+
+[node name="FixedRollInput" type="LineEdit" parent="OverlayLayer/ConfigFloatingPanel/ConfigScroll/ConfigContainer/FixedRollRow" unique_id=25]
+custom_minimum_size = Vector2(60, 24)
+layout_mode = 2
+text = "1"
+
+[node name="EnemyLabel" type="Label" parent="OverlayLayer/ConfigFloatingPanel/ConfigScroll/ConfigContainer" unique_id=26]
+layout_mode = 2
+text = "敌人类型:"
+
+[node name="EnemyRow" type="HBoxContainer" parent="OverlayLayer/ConfigFloatingPanel/ConfigScroll/ConfigContainer" unique_id=27]
+layout_mode = 2
+
+[node name="EnemyDummyBtn" type="Button" parent="OverlayLayer/ConfigFloatingPanel/ConfigScroll/ConfigContainer/EnemyRow" unique_id=28]
+custom_minimum_size = Vector2(78, 24)
+layout_mode = 2
+toggle_mode = true
+text = "训练假人"
+
+[node name="EnemyBeastBtn" type="Button" parent="OverlayLayer/ConfigFloatingPanel/ConfigScroll/ConfigContainer/EnemyRow" unique_id=29]
+custom_minimum_size = Vector2(78, 24)
+layout_mode = 2
+toggle_mode = true
+text = "训练野兽"
+
+[node name="EnemyHpRow" type="HBoxContainer" parent="OverlayLayer/ConfigFloatingPanel/ConfigScroll/ConfigContainer" unique_id=30]
+layout_mode = 2
+
+[node name="EnemyHpLabel" type="Label" parent="OverlayLayer/ConfigFloatingPanel/ConfigScroll/ConfigContainer/EnemyHpRow" unique_id=31]
+layout_mode = 2
+text = "敌人 HP:"
+
+[node name="EnemyHpInput" type="LineEdit" parent="OverlayLayer/ConfigFloatingPanel/ConfigScroll/ConfigContainer/EnemyHpRow" unique_id=32]
+custom_minimum_size = Vector2(60, 24)
+layout_mode = 2
+text = "20"
+
+[node name="EnemyAttackRow" type="HBoxContainer" parent="OverlayLayer/ConfigFloatingPanel/ConfigScroll/ConfigContainer" unique_id=33]
+layout_mode = 2
+
+[node name="EnemyAttackLabel" type="Label" parent="OverlayLayer/ConfigFloatingPanel/ConfigScroll/ConfigContainer/EnemyAttackRow" unique_id=34]
+layout_mode = 2
+text = "敌人攻击:"
+
+[node name="EnemyAttackInput" type="LineEdit" parent="OverlayLayer/ConfigFloatingPanel/ConfigScroll/ConfigContainer/EnemyAttackRow" unique_id=35]
+custom_minimum_size = Vector2(60, 24)
+layout_mode = 2
+text = "14"
+
+[node name="EnemyShieldRow" type="HBoxContainer" parent="OverlayLayer/ConfigFloatingPanel/ConfigScroll/ConfigContainer" unique_id=36]
+layout_mode = 2
+
+[node name="EnemyShieldLabel" type="Label" parent="OverlayLayer/ConfigFloatingPanel/ConfigScroll/ConfigContainer/EnemyShieldRow" unique_id=37]
+layout_mode = 2
+text = "敌人护盾:"
+
+[node name="EnemyShieldInput" type="LineEdit" parent="OverlayLayer/ConfigFloatingPanel/ConfigScroll/ConfigContainer/EnemyShieldRow" unique_id=38]
+custom_minimum_size = Vector2(60, 24)
+layout_mode = 2
+text = "0"
+
+[node name="EnemyIntentLabel" type="Label" parent="OverlayLayer/ConfigFloatingPanel/ConfigScroll/ConfigContainer" unique_id=39]
+layout_mode = 2
+text = "敌人意图:"
+
+[node name="EnemyIntentRow1" type="HBoxContainer" parent="OverlayLayer/ConfigFloatingPanel/ConfigScroll/ConfigContainer" unique_id=40]
+layout_mode = 2
+
+[node name="EnemyIntentAttackBtn" type="Button" parent="OverlayLayer/ConfigFloatingPanel/ConfigScroll/ConfigContainer/EnemyIntentRow1" unique_id=41]
+custom_minimum_size = Vector2(55, 24)
+layout_mode = 2
+toggle_mode = true
+text = "攻击"
+
+[node name="EnemyIntentDefendBtn" type="Button" parent="OverlayLayer/ConfigFloatingPanel/ConfigScroll/ConfigContainer/EnemyIntentRow1" unique_id=42]
+custom_minimum_size = Vector2(55, 24)
+layout_mode = 2
+toggle_mode = true
+text = "防御"
+
+[node name="EnemyIntentRow2" type="HBoxContainer" parent="OverlayLayer/ConfigFloatingPanel/ConfigScroll/ConfigContainer" unique_id=43]
+layout_mode = 2
+
+[node name="EnemyIntentBuffBtn" type="Button" parent="OverlayLayer/ConfigFloatingPanel/ConfigScroll/ConfigContainer/EnemyIntentRow2" unique_id=44]
+custom_minimum_size = Vector2(55, 24)
+layout_mode = 2
+toggle_mode = true
+text = "增益"
+
+[node name="EnemyIntentDebuffBtn" type="Button" parent="OverlayLayer/ConfigFloatingPanel/ConfigScroll/ConfigContainer/EnemyIntentRow2" unique_id=45]
+custom_minimum_size = Vector2(55, 24)
+layout_mode = 2
+toggle_mode = true
+text = "减益"
+
+[node name="EnemyIntentValueRow" type="HBoxContainer" parent="OverlayLayer/ConfigFloatingPanel/ConfigScroll/ConfigContainer" unique_id=46]
+layout_mode = 2
+
+[node name="EnemyIntentValueLabel" type="Label" parent="OverlayLayer/ConfigFloatingPanel/ConfigScroll/ConfigContainer/EnemyIntentValueRow" unique_id=47]
+layout_mode = 2
+text = "意图数值:"
+
+[node name="EnemyIntentValueInput" type="LineEdit" parent="OverlayLayer/ConfigFloatingPanel/ConfigScroll/ConfigContainer/EnemyIntentValueRow" unique_id=48]
+custom_minimum_size = Vector2(60, 24)
+layout_mode = 2
+text = "14"
+
+[node name="ResetButton" type="Button" parent="OverlayLayer/ConfigFloatingPanel/ConfigScroll/ConfigContainer" unique_id=49]
+custom_minimum_size = Vector2(100, 30)
+layout_mode = 2
+text = "重置战斗"
+
+[node name="AddCurseButton" type="Button" parent="OverlayLayer/ConfigFloatingPanel/ConfigScroll/ConfigContainer" unique_id=108]
+custom_minimum_size = Vector2(100, 30)
+layout_mode = 2
+text = "塞入临时诅咒"
+
+[node name="LogFloatingPanel" type="Control" parent="OverlayLayer" unique_id=73]
+visible = false
 layout_mode = 1
 anchors_preset = 11
 anchor_left = 1.0
@@ -476,7 +584,7 @@ grow_horizontal = 0
 grow_vertical = 2
 script = ExtResource("4")
 
-[node name="LogLabel" type="RichTextLabel" parent="BattleLogPanel" unique_id=74]
+[node name="LogLabel" type="RichTextLabel" parent="OverlayLayer/LogFloatingPanel" unique_id=74]
 custom_minimum_size = Vector2(280, 100)
 layout_mode = 1
 anchors_preset = 15
@@ -488,3 +596,90 @@ offset_right = -8.0
 offset_bottom = -8.0
 grow_horizontal = 2
 grow_vertical = 2
+
+[node name="ConfigToggleButton" type="Button" parent="OverlayLayer" unique_id=86]
+custom_minimum_size = Vector2(70, 30)
+layout_mode = 1
+anchors_preset = -1
+offset_left = 10.0
+offset_top = 10.0
+offset_right = 80.0
+offset_bottom = 40.0
+text = "配置"
+
+[node name="LogToggleButton" type="Button" parent="OverlayLayer" unique_id=87]
+custom_minimum_size = Vector2(70, 30)
+layout_mode = 1
+anchors_preset = -1
+offset_left = 90.0
+offset_top = 10.0
+offset_right = 160.0
+offset_bottom = 40.0
+text = "日志"
+
+[node name="DeckToggleButton" type="Button" parent="OverlayLayer" unique_id=97]
+custom_minimum_size = Vector2(70, 30)
+layout_mode = 1
+anchors_preset = -1
+offset_left = 170.0
+offset_top = 10.0
+offset_right = 240.0
+offset_bottom = 40.0
+text = "牌包"
+
+[node name="DeckFloatingPanel" type="PanelContainer" parent="OverlayLayer" unique_id=98]
+visible = false
+custom_minimum_size = Vector2(600, 450)
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.5
+anchor_right = 0.5
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = -300.0
+offset_top = -225.0
+offset_right = 300.0
+offset_bottom = 225.0
+
+[node name="DeckVBox" type="VBoxContainer" parent="OverlayLayer/DeckFloatingPanel" unique_id=99]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="DeckTitleLabel" type="Label" parent="OverlayLayer/DeckFloatingPanel/DeckVBox" unique_id=100]
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
+text = "卡包 (共 0 张)"
+horizontal_alignment = 1
+
+[node name="DeckCardScroll" type="ScrollContainer" parent="OverlayLayer/DeckFloatingPanel/DeckVBox" unique_id=101]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="DeckCardList" type="VBoxContainer" parent="OverlayLayer/DeckFloatingPanel/DeckVBox/DeckCardScroll" unique_id=102]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="MiniPreviewPanel" type="PanelContainer" parent="OverlayLayer/DeckFloatingPanel/DeckVBox" unique_id=103]
+custom_minimum_size = Vector2(0, 120)
+layout_mode = 2
+
+[node name="MiniPreviewVBox" type="VBoxContainer" parent="OverlayLayer/DeckFloatingPanel/DeckVBox/MiniPreviewPanel" unique_id=104]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="MiniCostLabel" type="Label" parent="OverlayLayer/DeckFloatingPanel/DeckVBox/MiniPreviewPanel/MiniPreviewVBox" unique_id=105]
+layout_mode = 2
+text = "消耗"
+
+[node name="MiniEffectLabel" type="Label" parent="OverlayLayer/DeckFloatingPanel/DeckVBox/MiniPreviewPanel/MiniPreviewVBox" unique_id=106]
+layout_mode = 2
+text = "效果"
+
+[node name="MiniDescLabel" type="Label" parent="OverlayLayer/DeckFloatingPanel/DeckVBox/MiniPreviewPanel/MiniPreviewVBox" unique_id=107]
+layout_mode = 2
+size_flags_vertical = 3
+autowrap_mode = 1
+text = "描述"
