@@ -13,8 +13,6 @@ public partial class BattleUI : Control
     private Label _battleResultLabel;
     private PanelContainer _cardPreviewPanel;
     private Label _energyCostLabel;
-    private Label _diceCostLabel;
-    private Label _damageRangeLabel;
     private Label _effectLabel;
     private Label _descriptionLabel;
     private HBoxContainer _diceContainer;
@@ -23,10 +21,6 @@ public partial class BattleUI : Control
     private Label _drawPileCount;
     private Label _discardPileCount;
     private Label _exhaustPileCount;
-    
-    private Control _drawPileView;
-    private Control _discardPileView;
-    private Control _exhaustPileView;
     
     private BattleManager _battleManager;
     private int _previewingCardIndex = -1;
@@ -48,8 +42,6 @@ public partial class BattleUI : Control
         _battleResultLabel = GetNode<Label>("BattleResultLabel");
         _cardPreviewPanel = GetNode<PanelContainer>("CardPreviewPanel");
         _energyCostLabel = GetNode<Label>("CardPreviewPanel/PreviewVBox/CostRow/EnergyCostLabel");
-        _diceCostLabel = GetNode<Label>("CardPreviewPanel/PreviewVBox/CostRow/DiceCostLabel");
-        _damageRangeLabel = GetNode<Label>("CardPreviewPanel/PreviewVBox/EffectRow/DamageRangeLabel");
         _effectLabel = GetNode<Label>("CardPreviewPanel/PreviewVBox/EffectRow/EffectLabel");
         _descriptionLabel = GetNode<Label>("CardPreviewPanel/PreviewVBox/DescriptionLabel");
         _diceContainer = GetNode<HBoxContainer>("DicePanel/DiceContainer");
@@ -59,9 +51,9 @@ public partial class BattleUI : Control
         _discardPileCount = GetNode<Label>("CardPanel/PileRow/DiscardPileView/DiscardPileCount");
         _exhaustPileCount = GetNode<Label>("CardPanel/PileRow/ExhaustPileView/ExhaustPileCount");
         
-        _drawPileView = GetNode<Control>("CardPanel/PileRow/DrawPileView");
-        _discardPileView = GetNode<Control>("CardPanel/PileRow/DiscardPileView");
-        _exhaustPileView = GetNode<Control>("CardPanel/PileRow/ExhaustPileView");
+        var drawPileBg = GetNode<Control>("CardPanel/PileRow/DrawPileView/DrawPileBg");
+        var discardPileBg = GetNode<Control>("CardPanel/PileRow/DiscardPileView/DiscardPileBg");
+        var exhaustPileBg = GetNode<Control>("CardPanel/PileRow/ExhaustPileView/ExhaustPileBg");
         
         _battleManager.PlayerTurnStarted += OnPlayerTurnStarted;
         _battleManager.PlayerTurnEnded += OnPlayerTurnEnded;
@@ -72,15 +64,18 @@ public partial class BattleUI : Control
         _battleManager.BattleLost += OnBattleLost;
         _endTurnButton.Pressed += OnEndTurnPressed;
         
-        _drawPileView.GuiInput += (InputEvent @event) => OnPileGuiInput(@event, "DrawPile");
-        _discardPileView.GuiInput += (InputEvent @event) => OnPileGuiInput(@event, "DiscardPile");
-        _exhaustPileView.GuiInput += (InputEvent @event) => OnPileGuiInput(@event, "ExhaustPile");
+        drawPileBg.GuiInput += (InputEvent @event) => OnPileGuiInput(@event, "DrawPile");
+        discardPileBg.GuiInput += (InputEvent @event) => OnPileGuiInput(@event, "DiscardPile");
+        exhaustPileBg.GuiInput += (InputEvent @event) => OnPileGuiInput(@event, "ExhaustPile");
         
         UpdateUI();
     }
     
     private void OnPileGuiInput(InputEvent @event, string pileName)
     {
+        if (!_battleManager.IsBattleActive)
+            return;
+            
         if (@event is InputEventMouseButton mouseEvent &&
             mouseEvent.ButtonIndex == MouseButton.Left &&
             mouseEvent.Pressed)
@@ -231,7 +226,7 @@ public partial class BattleUI : Control
                 string prefix = card.Data.CurseDuration == CurseDurationType.Temporary ? "[临时]" : "[永久]";
                 cardBtn.Text = $"{prefix} {card.Data.Name} [{card.CurseStacks}层]";
                 cardBtn.Modulate = new Color(1, 1, 1);
-                cardBtn.Disabled = !_battleManager.IsPlayerTurn;
+                cardBtn.Disabled = !_battleManager.IsPlayerTurn || !_battleManager.IsBattleActive;
             }
             else
             {
@@ -239,7 +234,7 @@ public partial class BattleUI : Control
                 cardBtn.Modulate = _battleManager.Player.CanPlayCard(card) 
                     ? new Color(1, 1, 1) 
                     : new Color(0.5f, 0.5f, 0.5f);
-                cardBtn.Disabled = !_battleManager.IsPlayerTurn;
+                cardBtn.Disabled = !_battleManager.IsPlayerTurn || !_battleManager.IsBattleActive;
             }
             
             int index = cardIndex;
@@ -260,6 +255,9 @@ public partial class BattleUI : Control
     
     private void OnCardGuiInput(InputEvent @event, int cardIndex)
     {
+        if (!_battleManager.IsBattleActive)
+            return;
+            
         if (@event is InputEventMouseButton mouseEvent && mouseEvent.ButtonIndex == MouseButton.Left)
         {
             if (mouseEvent.IsPressed())
@@ -321,65 +319,16 @@ public partial class BattleUI : Control
     
     private void ShowCardPreview(CardInstance card)
     {
-        _energyCostLabel.Text = $"Energy: {card.Data.EnergyCost}";
+        string diceText = card.Data.DiceCost > 0 
+            ? card.Data.DiceCost.ToString() 
+            : "无需";
+        _energyCostLabel.Text = $"Energy: {card.Data.EnergyCost}  Dice: {diceText}";
         
-        if (card.Data.DiceCost > 0)
-            _diceCostLabel.Text = $"Dice: {card.Data.DiceCost} {card.Data.DiceType}";
-        else
-            _diceCostLabel.Text = "Dice: 无需";
+        _effectLabel.Text = card.Data.Description;
         
-        if (card.Data.Subtype == CardSubtype.Curse)
-        {
-            _damageRangeLabel.Text = $"当前层数: {card.CurseStacks}";
-        }
-        else
-        {
-            int minDamage, maxDamage;
-            card.Data.GetDamageRange(_battleManager.Player.DiceSides, out minDamage, out maxDamage);
-            _damageRangeLabel.Text = card.Data.DamageFormula != null ? $"伤害: {minDamage} ~ {maxDamage}" : "伤害: 无";
-        }
-        
-        _effectLabel.Text = GetEffectText(card);
-        
-        _descriptionLabel.Text = card.Data.Description;
+        _descriptionLabel.Text = card.Data.EffectExplanation;
         
         _cardPreviewPanel.Visible = true;
         _battleResultLabel.Visible = false;
-    }
-    
-    private string GetEffectText(CardInstance card)
-    {
-        CardData data = card.Data;
-        switch (data.Subtype)
-        {
-            case CardSubtype.Defense:
-                return $"护盾: {data.ShieldValue} / 持续: {data.Duration}回合";
-            case CardSubtype.PositiveBuff:
-                return data.AppliedBuffType.HasValue 
-                    ? $"增益: {data.AppliedBuffType.Value} ({data.EffectAmount}) / 持续: {data.Duration}回合" 
-                    : "效果: 无";
-            case CardSubtype.NegativeBuff:
-                return data.AppliedDebuffType.HasValue 
-                    ? $"减益: {data.AppliedDebuffType.Value} ({data.EffectAmount}) / 持续: {data.Duration}回合" 
-                    : "效果: 无";
-            case CardSubtype.BattleLevelConsumable:
-                return $"消耗品效果: Energy恢复 / 本场剩余: {card.RemainingUses}次";
-            case CardSubtype.GameLevelConsumable:
-                return $"消耗品效果: HP恢复 / 全局剩余: {data.MaxUsage}次";
-            case CardSubtype.Equipment:
-                return data.EquipSlot.HasValue 
-                    ? $"装备槽: {data.EquipSlot.Value} / 加成: +{data.EffectAmount} / 持续: {data.Duration}场" 
-                    : "效果: 无";
-            case CardSubtype.Curse:
-                string duration = data.CurseDuration == CurseDurationType.Temporary ? "临时" : "永久";
-                int totalEffect = card.CurseStacks * data.CurseEffectAmount;
-                return $"诅咒类型: {duration}\n负面效果: {data.CurseTrigger} {totalEffect}/回合\n当前层数: {card.CurseStacks}\n打出后: {data.CurseDisappearChance * 100}%消失 / {data.CurseNothingChance * 100}%无事 / {data.CurseStrengthenChance * 100}%强化+{data.CurseStrengthenAmount}";
-            default:
-                if (data.AppliedBuffType.HasValue)
-                    return $"增益: {data.AppliedBuffType.Value} ({data.EffectAmount})";
-                if (data.AppliedDebuffType.HasValue)
-                    return $"减益: {data.AppliedDebuffType.Value} ({data.EffectAmount})";
-                return "效果: 无";
-        }
     }
 }

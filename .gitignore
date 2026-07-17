@@ -20,3 +20,7 @@ data/**/*.translation
 
 # Old backup files
 *.old
+
+# Temporary files
+temp.md
+*.temp

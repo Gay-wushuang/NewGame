@@ -1,9 +1,9 @@
-[gd_scene format=3 uid="uid://battleui_shared"]
+[gd_scene format=3 uid="uid://bt5qf78u12akg"]
 
 [ext_resource type="Script" uid="uid://5atqmpxxjbhs" path="res://scripts/ui/BattleUI.cs" id="1"]
 
 [node name="BattleUI" type="Control" unique_id=50]
-layout_mode = 1
+layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -16,12 +16,17 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_left = 9.0
+offset_top = 2.0
+offset_right = 9.0
+offset_bottom = 2.0
 grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.05, 0.05, 0.1, 1)
 
 [node name="TopPanel" type="Control" parent="." unique_id=52]
 layout_mode = 1
+anchors_preset = 10
 anchor_right = 1.0
 offset_left = 10.0
 offset_top = 10.0
@@ -181,7 +186,6 @@ grow_vertical = 2
 [node name="DrawPileView" type="VBoxContainer" parent="CardPanel/PileRow" unique_id=76]
 custom_minimum_size = Vector2(80, 100)
 layout_mode = 2
-mouse_filter = 2
 
 [node name="DrawPileBg" type="ColorRect" parent="CardPanel/PileRow/DrawPileView" unique_id=77]
 layout_mode = 2
@@ -206,7 +210,6 @@ alignment = 1
 [node name="DiscardPileView" type="VBoxContainer" parent="CardPanel/PileRow" unique_id=80]
 custom_minimum_size = Vector2(80, 100)
 layout_mode = 2
-mouse_filter = 2
 
 [node name="DiscardPileBg" type="ColorRect" parent="CardPanel/PileRow/DiscardPileView" unique_id=81]
 layout_mode = 2
@@ -225,7 +228,6 @@ text = "0"
 [node name="ExhaustPileView" type="VBoxContainer" parent="CardPanel/PileRow" unique_id=88]
 custom_minimum_size = Vector2(80, 100)
 layout_mode = 2
-mouse_filter = 2
 
 [node name="ExhaustPileBg" type="ColorRect" parent="CardPanel/PileRow/ExhaustPileView" unique_id=89]
 layout_mode = 2
@@ -288,19 +290,11 @@ size_flags_horizontal = 3
 
 [node name="EnergyCostLabel" type="Label" parent="CardPreviewPanel/PreviewVBox/CostRow" unique_id=94]
 layout_mode = 2
-text = "Energy: 0"
+text = "Energy: 0  Dice: 无需"
 
-[node name="DiceCostLabel" type="Label" parent="CardPreviewPanel/PreviewVBox/CostRow" unique_id=95]
-layout_mode = 2
-text = "Dice: 无需"
-
-[node name="EffectRow" type="HBoxContainer" parent="CardPreviewPanel/PreviewVBox" unique_id=96]
+[node name="EffectRow" type="HBoxContainer" parent="CardPreviewPanel/PreviewVBox" unique_id=990320486]
 layout_mode = 2
 size_flags_horizontal = 3
-
-[node name="DamageRangeLabel" type="Label" parent="CardPreviewPanel/PreviewVBox/EffectRow" unique_id=97]
-layout_mode = 2
-text = "伤害: 无"
 
 [node name="EffectLabel" type="Label" parent="CardPreviewPanel/PreviewVBox/EffectRow" unique_id=98]
 layout_mode = 2
@@ -310,5 +304,5 @@ text = "效果: 无"
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-autowrap_mode = 1
 text = "描述"
+autowrap_mode = 1

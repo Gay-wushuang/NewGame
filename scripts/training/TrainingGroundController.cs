@@ -162,7 +162,7 @@ public partial class TrainingGroundController : Node
     
     private void OnPileClicked(string pileName)
     {
-        if (_cardPileBrowser != null && _battleManager.Player != null)
+        if (_cardPileBrowser != null && _battleManager.Player != null && _battleManager.IsBattleActive)
         {
             switch (pileName)
             {
@@ -181,6 +181,9 @@ public partial class TrainingGroundController : Node
     
     private void OnDrawPileClicked(InputEvent inputEvent)
     {
+        if (!_battleManager.IsBattleActive)
+            return;
+            
         if (inputEvent is InputEventMouseButton mouseEvent && mouseEvent.Pressed && mouseEvent.ButtonIndex == MouseButton.Left)
         {
             OnPileClicked("DrawPile");
@@ -189,6 +192,9 @@ public partial class TrainingGroundController : Node
     
     private void OnDiscardPileClicked(InputEvent inputEvent)
     {
+        if (!_battleManager.IsBattleActive)
+            return;
+            
         if (inputEvent is InputEventMouseButton mouseEvent && mouseEvent.Pressed && mouseEvent.ButtonIndex == MouseButton.Left)
         {
             OnPileClicked("DiscardPile");
@@ -197,6 +203,9 @@ public partial class TrainingGroundController : Node
     
     private void OnExhaustPileClicked(InputEvent inputEvent)
     {
+        if (!_battleManager.IsBattleActive)
+            return;
+            
         if (inputEvent is InputEventMouseButton mouseEvent && mouseEvent.Pressed && mouseEvent.ButtonIndex == MouseButton.Left)
         {
             OnPileClicked("ExhaustPile");
@@ -229,7 +238,15 @@ public partial class TrainingGroundController : Node
         foreach (var card in _battleManager.Player.Deck)
         {
             var btn = new Button();
-            btn.Text = $"{card.Data.Name}  [{card.Data.Type}]  Energy:{card.Data.EnergyCost}";
+            if (card.Data.Subtype == CardSubtype.Curse)
+            {
+                string prefix = card.Data.CurseDuration == CurseDurationType.Temporary ? "[临时]" : "[永久]";
+                btn.Text = $"{prefix} {card.Data.Name} [{card.CurseStacks}层]";
+            }
+            else
+            {
+                btn.Text = $"{card.Data.Name}\nE:{card.Data.EnergyCost} D:{card.Data.DiceCost}";
+            }
             btn.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
             btn.GuiInput += (InputEvent @event) => OnDeckCardGuiInput(@event, card);
             _deckCardList.AddChild(btn);
@@ -240,9 +257,10 @@ public partial class TrainingGroundController : Node
     {
         if (@event is InputEventMouseButton mouseEvent && mouseEvent.ButtonIndex == MouseButton.Left && mouseEvent.Pressed)
         {
-            _deckMiniCostLabel.Text = $"Energy: {card.Data.EnergyCost}  Dice: {(card.Data.DiceCost > 0 ? card.Data.DiceCost.ToString() : "无需")}";
-            _deckMiniEffectLabel.Text = GetEffectText(card.Data);
-            _deckMiniDescLabel.Text = card.Data.Description;
+            string diceText = card.Data.DiceCost > 0 ? card.Data.DiceCost.ToString() : "无需";
+            _deckMiniCostLabel.Text = $"Energy: {card.Data.EnergyCost}  Dice: {diceText}";
+            _deckMiniEffectLabel.Text = card.Data.Description;
+            _deckMiniDescLabel.Text = card.Data.EffectExplanation;
         }
     }
     

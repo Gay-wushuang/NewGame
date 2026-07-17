@@ -8,6 +8,7 @@ public partial class BattleManager : Node
     public EnemyState Enemy;
     public int Turn = 1;
     public bool IsPlayerTurn = true;
+    public bool IsBattleActive { get; private set; } = true;
     public DiceRoller DiceRoller;
     
     public override void _Ready()
@@ -35,6 +36,7 @@ public partial class BattleManager : Node
         Enemy = enemy;
         Turn = 1;
         IsPlayerTurn = true;
+        IsBattleActive = true;
         Player.DiceRoller = DiceRoller;
         Player.Hand.Clear();
         Player.DicePool.Clear();
@@ -168,6 +170,7 @@ public partial class BattleManager : Node
             
             if (!Player.IsAlive())
             {
+                IsBattleActive = false;
                 EmitSignal(SignalName.BattleLost);
                 EmitSignal(SignalName.BattleLog, "失败!");
                 EmitSignal(SignalName.CardResolved, card.Data.Id, card.Data.Subtype.ToString());
@@ -207,6 +210,7 @@ public partial class BattleManager : Node
         
         if (!Enemy.IsAlive())
         {
+            IsBattleActive = false;
             EmitSignal(SignalName.BattleWon);
             EmitSignal(SignalName.BattleLog, "胜利!");
             return true;
@@ -623,6 +627,7 @@ public partial class BattleManager : Node
         
         if (!Player.IsAlive())
         {
+            IsBattleActive = false;
             EmitSignal(SignalName.BattleLost);
             EmitSignal(SignalName.BattleLog, "失败!");
         }

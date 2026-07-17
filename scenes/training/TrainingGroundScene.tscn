@@ -351,14 +351,14 @@ size_flags_vertical = 3
 
 [node name="MiniCostLabel" type="Label" parent="OverlayLayer/DeckFloatingPanel/DeckVBox/MiniPreviewPanel/MiniPreviewVBox" unique_id=105]
 layout_mode = 2
-text = "消耗"
+text = "Energy: 0  Dice: 无需"
 
 [node name="MiniEffectLabel" type="Label" parent="OverlayLayer/DeckFloatingPanel/DeckVBox/MiniPreviewPanel/MiniPreviewVBox" unique_id=106]
 layout_mode = 2
-text = "效果"
+text = "效果: 无"
 
 [node name="MiniDescLabel" type="Label" parent="OverlayLayer/DeckFloatingPanel/DeckVBox/MiniPreviewPanel/MiniPreviewVBox" unique_id=107]
 layout_mode = 2
 size_flags_vertical = 3
-text = "描述"
+text = "无"
 autowrap_mode = 1

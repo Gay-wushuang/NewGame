@@ -77,7 +77,15 @@ public partial class CardPileBrowser : Control
         foreach (var card in _pile)
         {
             Button cardBtn = new Button();
-            cardBtn.Text = $"{card.Data.Name}\nE:{card.Data.EnergyCost} D:{card.Data.DiceCost}";
+            if (card.Data.Subtype == CardSubtype.Curse)
+            {
+                string prefix = card.Data.CurseDuration == CurseDurationType.Temporary ? "[临时]" : "[永久]";
+                cardBtn.Text = $"{prefix} {card.Data.Name} [{card.CurseStacks}层]";
+            }
+            else
+            {
+                cardBtn.Text = $"{card.Data.Name}\nE:{card.Data.EnergyCost} D:{card.Data.DiceCost}";
+            }
             cardBtn.CustomMinimumSize = new Vector2(300, 40);
             
             cardBtn.GuiInput += (InputEvent @event) => OnCardGuiInput(@event, card);
@@ -108,15 +116,11 @@ public partial class CardPileBrowser : Control
     {
         _previewingCard = card;
         
-        string costText = $"Energy: {card.Data.EnergyCost}";
-        if (card.Data.DiceCost > 0)
-            costText += $" | Dice: {card.Data.DiceCost}";
-        else
-            costText += " | Dice: 无需";
-        _miniCostLabel.Text = costText;
+        string diceText = card.Data.DiceCost > 0 ? card.Data.DiceCost.ToString() : "无需";
+        _miniCostLabel.Text = $"Energy: {card.Data.EnergyCost}  Dice: {diceText}";
         
-        _miniEffectLabel.Text = GetEffectText(card.Data);
-        _miniDescLabel.Text = card.Data.Description;
+        _miniEffectLabel.Text = card.Data.Description;
+        _miniDescLabel.Text = card.Data.EffectExplanation;
     }
     
     private string GetEffectText(CardData data)

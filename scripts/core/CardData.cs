@@ -80,7 +80,8 @@ public class CardData
 {
     public string Id;
     public string Name;
-    public string Description;
+    public string Description = "";
+    public string EffectExplanation = "";
     public CardType Type;
     public CardCategory Category;
     public CardSubtype Subtype;
@@ -138,7 +139,8 @@ public class CardData
     {
         Id = "energy_strike",
         Name = "EnergyStrike",
-        Description = "消耗 1 Energy 和 1 枚默认骰；打出时掷骰，造成 骰点 + 2 伤害",
+        Description = "效果: 造成骰点+2伤害",
+        EffectExplanation = "无",
         Type = CardType.Attack,
         Category = CardCategory.Basic,
         Subtype = CardSubtype.Attack,
@@ -155,7 +157,8 @@ public class CardData
     {
         Id = "break_core",
         Name = "BreakCore",
-        Description = "消耗 3 Energy 和 1 枚默认骰；造成 8 伤害；骰点 >= 5 时施加 2 层破甲",
+        Description = "效果: 造成8伤害;骰点>=5时施加2层破甲",
+        EffectExplanation = "破甲: 伤害+1，每回合递减1层",
         Type = CardType.Attack,
         Category = CardCategory.Basic,
         Subtype = CardSubtype.Attack,
@@ -181,7 +184,8 @@ public class CardData
     {
         Id = "quick_strike",
         Name = "QuickStrike",
-        Description = "无需消耗；造成 4 点固定伤害",
+        Description = "效果: 造成4伤害",
+        EffectExplanation = "无",
         Type = CardType.Attack,
         Category = CardCategory.Basic,
         Subtype = CardSubtype.Attack,
@@ -198,7 +202,8 @@ public class CardData
     {
         Id = "vulnerable_strike",
         Name = "VulnerableStrike",
-        Description = "消耗 2 Energy 和 1 枚默认骰；造成 骰点 + 1 伤害；骰点 >= 3 时施加 1 层破甲",
+        Description = "效果: 造成骰点+1伤害;骰点>=3时施加1层破甲",
+        EffectExplanation = "破甲: 伤害+1，每回合递减1层",
         Type = CardType.Attack,
         Category = CardCategory.Basic,
         Subtype = CardSubtype.Attack,
@@ -224,7 +229,8 @@ public class CardData
     {
         Id = "critical_hit",
         Name = "CriticalHit",
-        Description = "消耗 2 Energy 和 1 枚默认骰；造成 骰点 + 3 伤害；骰点 >= 4 时伤害翻倍",
+        Description = "效果: 造成骰点+3伤害;骰点>=4时伤害翻倍",
+        EffectExplanation = "无",
         Type = CardType.Attack,
         Category = CardCategory.Basic,
         Subtype = CardSubtype.Attack,
@@ -249,7 +255,8 @@ public class CardData
     {
         Id = "heavy_strike",
         Name = "HeavyStrike",
-        Description = "消耗 2 Energy 和 1 枚默认骰；造成 骰点 + 4 伤害",
+        Description = "效果: 造成骰点+4伤害",
+        EffectExplanation = "无",
         Type = CardType.Attack,
         Category = CardCategory.Basic,
         Subtype = CardSubtype.Attack,
@@ -266,7 +273,8 @@ public class CardData
     {
         Id = "energy_barrier",
         Name = "EnergyBarrier",
-        Description = "消耗 2 Energy；获得 5 点护盾，持续 2 回合",
+        Description = "效果: 获得5护盾",
+        EffectExplanation = "护盾: 优先于Energy承受伤害，持续2回合",
         Type = CardType.Skill,
         Category = CardCategory.Basic,
         Subtype = CardSubtype.Defense,
@@ -283,7 +291,8 @@ public class CardData
     {
         Id = "adrenaline",
         Name = "Adrenaline",
-        Description = "消耗 1 Energy；下回合开始恢复 3 Energy，持续 2 回合",
+        Description = "效果: 能量回复 3/2",
+        EffectExplanation = "能量回复: 下回合开始额外恢复3 Energy，持续2回合",
         Type = CardType.Skill,
         Category = CardCategory.Skill,
         Subtype = CardSubtype.PositiveBuff,
@@ -301,7 +310,8 @@ public class CardData
     {
         Id = "weak_pulse",
         Name = "WeakPulse",
-        Description = "消耗 2 Energy 和 1 枚默认骰；造成 3 伤害；施加 2 层 Weak，持续 2 回合",
+        Description = "效果: 造成3伤害;施加2层Weak",
+        EffectExplanation = "Weak: 敌人攻击伤害减少对应层数，持续2回合",
         Type = CardType.Skill,
         Category = CardCategory.Skill,
         Subtype = CardSubtype.NegativeBuff,
@@ -320,7 +330,8 @@ public class CardData
     {
         Id = "energy_potion",
         Name = "EnergyPotion",
-        Description = "恢复 5 Energy；每场战斗限用 2 次",
+        Description = "效果: 恢复5 Energy",
+        EffectExplanation = "消耗品: 每场战斗限用2次，使用后进入消耗堆",
         Type = CardType.Skill,
         Category = CardCategory.Consumable,
         Subtype = CardSubtype.BattleLevelConsumable,
@@ -337,7 +348,8 @@ public class CardData
     {
         Id = "iron_sword",
         Name = "IronSword",
-        Description = "消耗 3 Energy；装备武器，攻击伤害 +2，持续 3 场战斗",
+        Description = "效果: 装备 Weapon",
+        EffectExplanation = "Weapon: 装备武器，本场攻击伤害+2，持续3场",
         Type = CardType.Power,
         Category = CardCategory.Other,
         Subtype = CardSubtype.Equipment,
@@ -356,7 +368,8 @@ public class CardData
     {
         Id = "clumsy",
         Name = "Clumsy",
-        Description = "永久诅咒：手牌上限 -1；每回合开始时触发；打出后有概率消失/强化",
+        Description = "效果: 手牌上限-1",
+        EffectExplanation = "诅咒: 每回合触发，打出后15%消失/70%无事/15%强化",
         Type = CardType.Power,
         Category = CardCategory.Other,
         Subtype = CardSubtype.Curse,
@@ -378,7 +391,8 @@ public class CardData
     {
         Id = "wound",
         Name = "Wound",
-        Description = "临时诅咒：受到过量伤害的印记；每回合开始时失去 2 HP；战斗结束后消失；打出后有概率消失/强化",
+        Description = "效果: 每回合失去2 HP",
+        EffectExplanation = "诅咒: 临时诅咒，战斗结束销毁，打出后15%消失/70%无事/15%强化",
         Type = CardType.Power,
         Category = CardCategory.Other,
         Subtype = CardSubtype.Curse,
