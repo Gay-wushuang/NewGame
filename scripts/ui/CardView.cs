@@ -97,30 +97,25 @@ public partial class CardView : Control
         Func<CardData, CardInstance, string> formatStatLine = null,
         Func<CardInstance, string> formatRulesText = null)
     {
-        ShowBack = false;
-        CardName = CardDisplayFormatter.FormatName(data);
-        CardType = CardDisplayFormatter.FormatCardTypeLabel(data);
+        _showBack = false;
+        _cardName = CardDisplayFormatter.FormatName(data);
+        _cardType = CardDisplayFormatter.FormatCardTypeLabel(data);
         
         if (formatStatLine != null)
-            StatLine = formatStatLine(data, instance);
+            _statLine = formatStatLine(data, instance);
         else
-            StatLine = CardDisplayFormatter.FormatCardStatLine(data, instance, showContext);
+            _statLine = CardDisplayFormatter.FormatCardStatLine(data, instance, showContext);
         
-        EnergyCostText = data.EnergyCost.ToString();
-        DiceCostText = data.DiceCost.ToString();
-        ArtNote = !string.IsNullOrEmpty(data.VisualKey) ? $"AI art slot\n{data.VisualKey}" : "AI art slot\n448 x 320";
+        _energyCostText = data.EnergyCost.ToString();
+        _diceCostText = data.DiceCost.ToString();
+        _artNote = !string.IsNullOrEmpty(data.VisualKey) ? $"AI art slot\n{data.VisualKey}" : "AI art slot\n448 x 320";
         
-        if (showContext)
-        {
-            if (formatRulesText != null)
-                RulesText = formatRulesText(instance);
-            else
-                RulesText = CardDisplayFormatter.FormatRuleText(data, instance, diceSides);
-        }
+        if (formatRulesText != null)
+            _rulesText = formatRulesText(instance);
         else
-        {
-            RulesText = "";
-        }
+            _rulesText = CardDisplayFormatter.FormatRuleText(data, instance, diceSides);
+
+        UpdateView();
     }
 
     public override void _Ready()

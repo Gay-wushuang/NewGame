@@ -2,6 +2,10 @@ using Godot;
 
 public partial class TrainingGroundController : Node
 {
+    private const float DeckCardScale = 0.52f;
+    private const int DeckCardsPerRow = 5;
+    private static readonly Vector2 DeckCardTileSize = new Vector2(100, 150);
+
     private BattleManager _battleManager;
     private BattleLogPanel _battleLogPanel;
     private CardPileBrowser _cardPileBrowser;
@@ -194,13 +198,38 @@ public partial class TrainingGroundController : Node
         _deckMiniKeywordLabel.Visible = false;
         _deckMiniKeywordLabel.Text = "";
         
+        HBoxContainer currentRow = null;
+        int cardIndex = 0;
         foreach (var card in _battleManager.Player.Deck)
         {
-            var cardView = (CardView)_cardViewScene.Instantiate();
-            cardView.Setup(card.Data, card, _battleManager.Player.DiceSides, false);
-            cardView.GuiInput += (InputEvent @event) => OnDeckCardGuiInput(@event, card);
-            _deckCardList.AddChild(cardView);
+            if (cardIndex % DeckCardsPerRow == 0)
+            {
+                currentRow = new HBoxContainer();
+                currentRow.AddThemeConstantOverride("separation", 8);
+                currentRow.SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter;
+                _deckCardList.AddChild(currentRow);
+            }
+
+            currentRow.AddChild(CreateDeckCardTile(card));
+            cardIndex++;
         }
+    }
+
+    private Control CreateDeckCardTile(CardInstance card)
+    {
+        var wrapper = new Control();
+        wrapper.CustomMinimumSize = DeckCardTileSize;
+        wrapper.SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter;
+        wrapper.SizeFlagsVertical = Control.SizeFlags.ShrinkCenter;
+        wrapper.GuiInput += (InputEvent @event) => OnDeckCardGuiInput(@event, card);
+
+        var cardView = (CardView)_cardViewScene.Instantiate();
+        cardView.Scale = new Vector2(DeckCardScale, DeckCardScale);
+        cardView.Setup(card.Data, card, _battleManager.Player.DiceSides, false);
+        SetMouseFilterRecursive(cardView, Control.MouseFilterEnum.Ignore);
+        wrapper.AddChild(cardView);
+
+        return wrapper;
     }
     
     private void OnDeckCardGuiInput(InputEvent @event, CardInstance card)
@@ -425,5 +454,17 @@ public partial class TrainingGroundController : Node
         _battleManager.Player.Hand.Add(wound);
         _battleUI.UpdateUI();
         _battleLogPanel.AddLog("塞入临时诅咒: Wound");
+    }
+
+    private void SetMouseFilterRecursive(Control control, Control.MouseFilterEnum mouseFilter)
+    {
+        control.MouseFilter = mouseFilter;
+        foreach (Node child in control.GetChildren())
+        {
+            if (child is Control childControl)
+            {
+                SetMouseFilterRecursive(childControl, mouseFilter);
+            }
+        }
     }
 }

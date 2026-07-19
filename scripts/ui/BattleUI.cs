@@ -295,8 +295,8 @@ public partial class BattleUI : Control
             }
             else
             {
-                ShowCardPreview(card);
                 _previewingCardIndex = cardIndex;
+                ShowCardPreview(card);
             }
         }
     }
