@@ -368,14 +368,9 @@ public partial class BattleUI : Control
 
     private void ApplyCardView(CardView view, CardInstance card, bool contextual)
     {
-        view.ShowBack = false;
-        view.CardName = CardDisplayFormatter.FormatName(card.Data);
-        view.CardType = FormatCardTypeLabel(card.Data);
-        view.StatLine = FormatCardStatLine(card.Data, card, contextual);
-        view.EnergyCostText = card.Data.EnergyCost.ToString();
-        view.DiceCostText = card.Data.DiceCost.ToString();
-        view.ArtNote = FormatArtNote(card.Data);
-        view.RulesText = FormatCardFaceRuleText(card, contextual);
+        view.Setup(card.Data, card, _battleManager.Player.DiceSides, contextual,
+            (data, inst) => FormatCardStatLine(data, inst, contextual),
+            (inst) => FormatCardFaceRuleText(inst, contextual));
     }
 
     private string FormatCardStatLine(CardData data, CardInstance card, bool contextual)

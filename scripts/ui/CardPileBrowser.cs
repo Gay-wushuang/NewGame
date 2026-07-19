@@ -18,6 +18,7 @@ public partial class CardPileBrowser : Control
 	private List<CardInstance> _pile;
 	private bool _allowDoubleClickToHand;
 	private CardInstance _previewingCard;
+	private PackedScene _cardViewScene;
 	
 	public override void _Ready()
 	{
@@ -28,6 +29,8 @@ public partial class CardPileBrowser : Control
 		_miniKeywordLabel = GetNode<Label>("BrowserPanel/BrowserVBox/ContentHBox/MiniPreviewPanel/MiniPreviewVBox/MiniKeywordLabel");
 		_closeButton = GetNode<Button>("BrowserPanel/BrowserVBox/CloseButton");
 		_backgroundDim = GetNode<ColorRect>("BackgroundDim");
+		
+		_cardViewScene = GD.Load<PackedScene>("res://scenes/card/CardView.tscn");
 		
 		_closeButton.Pressed += OnClosePressed;
 		_backgroundDim.GuiInput += OnBackgroundClicked;
@@ -77,21 +80,11 @@ public partial class CardPileBrowser : Control
 		
 		foreach (var card in _pile)
 		{
-			Button cardBtn = new Button();
-			if (card.Data.Subtype == CardSubtype.Curse)
-			{
-				string prefix = card.Data.CurseDuration == CurseDurationType.Temporary ? "[临时]" : "[永久]";
-				cardBtn.Text = $"{prefix} {card.Data.Name} [{card.CurseStacks}层]";
-			}
-			else
-			{
-				cardBtn.Text = $"{card.Data.Name}\nE:{card.Data.EnergyCost} D:{card.Data.DiceCost}";
-			}
-			cardBtn.CustomMinimumSize = new Vector2(300, 40);
+			var cardView = (CardView)_cardViewScene.Instantiate();
+			cardView.Setup(card.Data, card, _player.DiceSides, false);
+			cardView.GuiInput += (InputEvent @event) => OnCardGuiInput(@event, card);
 			
-			cardBtn.GuiInput += (InputEvent @event) => OnCardGuiInput(@event, card);
-			
-			_cardList.AddChild(cardBtn);
+			_cardList.AddChild(cardView);
 		}
 	}
 	

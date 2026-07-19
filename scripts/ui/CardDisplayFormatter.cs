@@ -7,6 +7,57 @@ public static class CardDisplayFormatter
         return data.Name;
     }
 
+    public static string FormatCardTypeLabel(CardData data)
+    {
+        switch (data.Subtype)
+        {
+            case CardSubtype.Attack:
+                return "Attack";
+            case CardSubtype.Defense:
+                return "Defense";
+            case CardSubtype.PositiveBuff:
+                return "Buff";
+            case CardSubtype.NegativeBuff:
+                return "Debuff";
+            case CardSubtype.BattleLevelConsumable:
+            case CardSubtype.GameLevelConsumable:
+                return "Item";
+            case CardSubtype.Equipment:
+                return "Equip";
+            case CardSubtype.Curse:
+                return "Curse";
+            default:
+                return data.Type.ToString();
+        }
+    }
+
+    public static string FormatCardStatLine(CardData data, CardInstance card, bool contextual)
+    {
+        if (data.DamageFormula != null)
+        {
+            int minDamage, maxDamage;
+            data.GetDamageRange(contextual ? 6 : 6, out minDamage, out maxDamage);
+            return minDamage == maxDamage ? $"DMG {minDamage}" : $"DMG {minDamage}~{maxDamage}";
+        }
+
+        if (data.Subtype == CardSubtype.Defense && data.ShieldValue > 0)
+        {
+            return $"Shield {data.ShieldValue}";
+        }
+
+        if (data.Subtype == CardSubtype.Curse)
+        {
+            return card.CurseStacks > 1 ? $"Stacks {card.CurseStacks}" : "Curse";
+        }
+
+        if (data.EffectAmount > 0)
+        {
+            return $"Effect {data.EffectAmount}";
+        }
+
+        return "Effect";
+    }
+
     public static string FormatCost(CardData data)
     {
         var costs = new List<string>();

@@ -1,4 +1,5 @@
 using Godot;
+using System;
 
 [Tool]
 public partial class CardView : Control
@@ -90,6 +91,36 @@ public partial class CardView : Control
     {
         get => _backNoteText;
         set { _backNoteText = value; UpdateViewDeferred(); }
+    }
+
+    public void Setup(CardData data, CardInstance instance, int diceSides, bool showContext, 
+        Func<CardData, CardInstance, string> formatStatLine = null,
+        Func<CardInstance, string> formatRulesText = null)
+    {
+        ShowBack = false;
+        CardName = CardDisplayFormatter.FormatName(data);
+        CardType = CardDisplayFormatter.FormatCardTypeLabel(data);
+        
+        if (formatStatLine != null)
+            StatLine = formatStatLine(data, instance);
+        else
+            StatLine = CardDisplayFormatter.FormatCardStatLine(data, instance, showContext);
+        
+        EnergyCostText = data.EnergyCost.ToString();
+        DiceCostText = data.DiceCost.ToString();
+        ArtNote = !string.IsNullOrEmpty(data.VisualKey) ? $"AI art slot\n{data.VisualKey}" : "AI art slot\n448 x 320";
+        
+        if (showContext)
+        {
+            if (formatRulesText != null)
+                RulesText = formatRulesText(instance);
+            else
+                RulesText = CardDisplayFormatter.FormatRuleText(data, instance, diceSides);
+        }
+        else
+        {
+            RulesText = "";
+        }
     }
 
     public override void _Ready()

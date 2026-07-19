@@ -47,6 +47,7 @@ public partial class TrainingGroundController : Node
     private Label _deckMiniKeywordLabel;
     
     private TrainingConfig _config = new TrainingConfig();
+    private PackedScene _cardViewScene;
     
     public override void _Ready()
     {
@@ -92,6 +93,8 @@ public partial class TrainingGroundController : Node
         _deckMiniCostLabel = GetNode<Label>("OverlayLayer/DeckFloatingPanel/DeckVBox/MiniPreviewPanel/MiniPreviewVBox/MiniCostLabel");
         _deckMiniRuleLabel = GetNode<Label>("OverlayLayer/DeckFloatingPanel/DeckVBox/MiniPreviewPanel/MiniPreviewVBox/MiniRuleLabel");
         _deckMiniKeywordLabel = GetNode<Label>("OverlayLayer/DeckFloatingPanel/DeckVBox/MiniPreviewPanel/MiniPreviewVBox/MiniKeywordLabel");
+        
+        _cardViewScene = GD.Load<PackedScene>("res://scenes/card/CardView.tscn");
         
         _playerHpInput.Text = _config.PlayerHp.ToString();
         _playerEnergyInput.Text = _config.PlayerEnergy.ToString();
@@ -193,19 +196,10 @@ public partial class TrainingGroundController : Node
         
         foreach (var card in _battleManager.Player.Deck)
         {
-            var btn = new Button();
-            if (card.Data.Subtype == CardSubtype.Curse)
-            {
-                string prefix = card.Data.CurseDuration == CurseDurationType.Temporary ? "[临时]" : "[永久]";
-                btn.Text = $"{prefix} {card.Data.Name} [{card.CurseStacks}层]";
-            }
-            else
-            {
-                btn.Text = $"{card.Data.Name}\nE:{card.Data.EnergyCost} D:{card.Data.DiceCost}";
-            }
-            btn.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-            btn.GuiInput += (InputEvent @event) => OnDeckCardGuiInput(@event, card);
-            _deckCardList.AddChild(btn);
+            var cardView = (CardView)_cardViewScene.Instantiate();
+            cardView.Setup(card.Data, card, _battleManager.Player.DiceSides, false);
+            cardView.GuiInput += (InputEvent @event) => OnDeckCardGuiInput(@event, card);
+            _deckCardList.AddChild(cardView);
         }
     }
     
