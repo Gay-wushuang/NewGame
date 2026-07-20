@@ -46,6 +46,13 @@ public partial class TrainingGroundController : Node
     private Label _deckMiniRuleLabel;
     private Label _deckMiniKeywordLabel;
     
+    private Control _drawPileBg;
+    private Control _discardPileBg;
+    private Control _exhaustPileBg;
+    private Label _drawPileCount;
+    private Label _discardPileCount;
+    private Label _exhaustPileCount;
+    
     private TrainingConfig _config = new TrainingConfig();
     private PackedScene _cardViewScene;
     
@@ -96,6 +103,17 @@ public partial class TrainingGroundController : Node
         
         _cardViewScene = GD.Load<PackedScene>("res://scenes/card/CardView.tscn");
         
+        _drawPileBg = GetNode<Control>("PileBar/DrawPileView/DrawPileBg");
+        _discardPileBg = GetNode<Control>("PileBar/DiscardPileView/DiscardPileBg");
+        _exhaustPileBg = GetNode<Control>("PileBar/ExhaustPileView/ExhaustPileBg");
+        _drawPileCount = GetNode<Label>("PileBar/DrawPileView/DrawPileCount");
+        _discardPileCount = GetNode<Label>("PileBar/DiscardPileView/DiscardPileCount");
+        _exhaustPileCount = GetNode<Label>("PileBar/ExhaustPileView/ExhaustPileCount");
+        
+        _drawPileBg.GuiInput += (InputEvent e) => OnPileClicked(e, "DrawPile");
+        _discardPileBg.GuiInput += (InputEvent e) => OnPileClicked(e, "DiscardPile");
+        _exhaustPileBg.GuiInput += (InputEvent e) => OnPileClicked(e, "ExhaustPile");
+        
         _playerHpInput.Text = _config.PlayerHp.ToString();
         _playerEnergyInput.Text = _config.PlayerEnergy.ToString();
         _diceCountInput.Text = _config.DiceCount.ToString();
@@ -131,9 +149,10 @@ public partial class TrainingGroundController : Node
         _deckToggleButton.Pressed += OnDeckToggle;
         _dimMask.GuiInput += OnDimMaskClicked;
         
-        _battleUI.PileClicked += OnPileClicked;
+        
         
         _battleManager.BattleLog += _battleLogPanel.AddLog;
+        _battleManager.CardResolved += (string cardId, string subtype) => UpdatePileCounts();
         
         LoadCardPileBrowser();
         
@@ -151,10 +170,12 @@ public partial class TrainingGroundController : Node
         }
     }
     
-    private void OnPileClicked(string pileName)
+    private void OnPileClicked(InputEvent @event, string pileName)
     {
-        if (_cardPileBrowser != null && _battleManager.Player != null && _battleManager.IsBattleActive)
+        if (@event is InputEventMouseButton mb && mb.ButtonIndex == MouseButton.Left && mb.Pressed)
         {
+            if (!_battleManager.IsBattleActive || _cardPileBrowser == null) return;
+            
             switch (pileName)
             {
                 case "DrawPile":
@@ -168,6 +189,14 @@ public partial class TrainingGroundController : Node
                     break;
             }
         }
+    }
+    
+    private void UpdatePileCounts()
+    {
+        if (_battleManager.Player == null) return;
+        _drawPileCount.Text = _battleManager.Player.DrawPile.Count.ToString();
+        _discardPileCount.Text = _battleManager.Player.DiscardPile.Count.ToString();
+        _exhaustPileCount.Text = _battleManager.Player.ExhaustPile.Count.ToString();
     }
     
     private void OnDeckToggle()
@@ -207,10 +236,12 @@ public partial class TrainingGroundController : Node
     {
         if (@event is InputEventMouseButton mouseEvent && mouseEvent.ButtonIndex == MouseButton.Left && mouseEvent.Pressed)
         {
-            _deckMiniCostLabel.Text = $"消耗：{CardDisplayFormatter.FormatCost(card.Data)}";
-            _deckMiniRuleLabel.Text = CardDisplayFormatter.FormatRuleText(card.Data, card, _battleManager.Player.DiceSides);
+            string diceText = card.Data.DiceCost > 0 ? card.Data.DiceCost.ToString() : "无需";
+            _deckMiniCostLabel.Text = $"Energy: {card.Data.EnergyCost}  Dice: {diceText}";
             
-            string keywordText = CardDisplayFormatter.FormatKeywordText(card.Data);
+            _deckMiniRuleLabel.Text = card.Data.Description;
+            
+            string keywordText = card.Data.EffectExplanation;
             _deckMiniKeywordLabel.Visible = !string.IsNullOrEmpty(keywordText);
             _deckMiniKeywordLabel.Text = keywordText;
         }
@@ -378,6 +409,7 @@ public partial class TrainingGroundController : Node
 
         var enemy = TrainingEnemyFactory.CreateEnemy(_config.EnemyType, _config);
         _battleManager.InitializeBattle(player, enemy, diceRoller);
+        UpdatePileCounts();
     }
     
     private void ParseConfig()

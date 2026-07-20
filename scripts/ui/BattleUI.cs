@@ -22,16 +22,10 @@ public partial class BattleUI : Control
     private HBoxContainer _diceContainer;
     private HBoxContainer _cardContainer;
     private Button _endTurnButton;
-    private Label _drawPileCount;
-    private Label _discardPileCount;
-    private Label _exhaustPileCount;
     private PackedScene _cardViewScene;
     
     private BattleManager _battleManager;
     private int _previewingCardIndex = -1;
-    
-    [Signal]
-    public delegate void PileClickedEventHandler(string pileName);
     
     public override void _Ready()
     {
@@ -51,15 +45,8 @@ public partial class BattleUI : Control
         _previewRuleLabel = GetNode<Label>("CardPreviewPanel/PreviewVBox/PreviewRuleLabel");
         _previewKeywordLabel = GetNode<Label>("CardPreviewPanel/PreviewVBox/PreviewKeywordLabel");
         _diceContainer = GetNode<HBoxContainer>("DicePanel/DiceContainer");
-        _cardContainer = GetNode<HBoxContainer>("CardPanel/PileRow/CardContainer");
+        _cardContainer = GetNode<HBoxContainer>("CardPanel/CardContainer");
         _endTurnButton = GetNode<Button>("EndTurnButton");
-        _drawPileCount = GetNode<Label>("CardPanel/PileRow/DrawPileView/DrawPileCount");
-        _discardPileCount = GetNode<Label>("CardPanel/PileRow/DiscardPileView/DiscardPileCount");
-        _exhaustPileCount = GetNode<Label>("CardPanel/PileRow/ExhaustPileView/ExhaustPileCount");
-        
-        var drawPileBg = GetNode<Control>("CardPanel/PileRow/DrawPileView/DrawPileBg");
-        var discardPileBg = GetNode<Control>("CardPanel/PileRow/DiscardPileView/DiscardPileBg");
-        var exhaustPileBg = GetNode<Control>("CardPanel/PileRow/ExhaustPileView/ExhaustPileBg");
         _cardViewScene = GD.Load<PackedScene>("res://scenes/card/CardView.tscn");
         
         _battleManager.PlayerTurnStarted += OnPlayerTurnStarted;
@@ -71,24 +58,7 @@ public partial class BattleUI : Control
         _battleManager.BattleLost += OnBattleLost;
         _endTurnButton.Pressed += OnEndTurnPressed;
         
-        drawPileBg.GuiInput += (InputEvent @event) => OnPileGuiInput(@event, "DrawPile");
-        discardPileBg.GuiInput += (InputEvent @event) => OnPileGuiInput(@event, "DiscardPile");
-        exhaustPileBg.GuiInput += (InputEvent @event) => OnPileGuiInput(@event, "ExhaustPile");
-        
         UpdateUI();
-    }
-    
-    private void OnPileGuiInput(InputEvent @event, string pileName)
-    {
-        if (!_battleManager.IsBattleActive)
-            return;
-            
-        if (@event is InputEventMouseButton mouseEvent &&
-            mouseEvent.ButtonIndex == MouseButton.Left &&
-            mouseEvent.Pressed)
-        {
-            EmitSignal(SignalName.PileClicked, pileName);
-        }
     }
     
     public void OnPlayerTurnStarted(int turn)
@@ -183,7 +153,6 @@ public partial class BattleUI : Control
         
         UpdateDiceUI();
         UpdateCardUI();
-        UpdatePileUI();
     }
     
     private void UpdateDiceUI()
@@ -203,7 +172,7 @@ public partial class BattleUI : Control
             diceBtn.Text = dice.IsConsumed
                 ? $"d{dice.Sides}\n{dice.Value}"
                 : $"d{dice.Sides}\n?";
-            diceBtn.Size = new Vector2(60, 60);
+            diceBtn.CustomMinimumSize = new Vector2(0, 0);
             diceBtn.Modulate = dice.IsConsumed ? new Color(0.5f, 0.5f, 0.5f) : new Color(1, 1, 1);
             diceBtn.Disabled = true;
             
@@ -252,14 +221,6 @@ public partial class BattleUI : Control
         wrapper.Modulate = canUse ? Colors.White : new Color(0.55f, 0.55f, 0.55f);
 
         return wrapper;
-    }
-    
-    private void UpdatePileUI()
-    {
-        if (_battleManager.Player == null) return;
-        _drawPileCount.Text = _battleManager.Player.DrawPile.Count.ToString();
-        _discardPileCount.Text = _battleManager.Player.DiscardPile.Count.ToString();
-        _exhaustPileCount.Text = _battleManager.Player.ExhaustPile.Count.ToString();
     }
     
     private void OnCardGuiInput(InputEvent @event, int cardIndex)
