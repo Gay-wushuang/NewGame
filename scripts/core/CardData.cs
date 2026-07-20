@@ -104,6 +104,8 @@ public class CardData
     public int StackLimit;
     public StackBehavior StackRule;
     public float ResistChance;
+    public int ConditionalDiceThreshold;
+    public string ConditionalEffectSummary = "";
     
     public int MaxUsage;
     public int UsesPerBattle;
@@ -132,15 +134,15 @@ public class CardData
     {
         float total = CurseDisappearChance + CurseNothingChance + CurseStrengthenChance;
         if (Mathf.Abs(total - 1.0f) > 0.001f)
-            GD.PushWarning($"诅咒卡 {Name} 的概率之和不为 1.0: {total}");
+            GD.PushWarning($"Curse card {Name} chance total is not 1.0: {total}");
     }
     
     public static CardData EnergyStrike = new CardData()
     {
         Id = "energy_strike",
         Name = "EnergyStrike",
-        Description = "效果: 造成骰点+2伤害",
-        EffectExplanation = "无",
+        Description = "Deal die + 2 damage.",
+        EffectExplanation = "",
         Type = CardType.Attack,
         Category = CardCategory.Basic,
         Subtype = CardSubtype.Attack,
@@ -157,8 +159,8 @@ public class CardData
     {
         Id = "break_core",
         Name = "BreakCore",
-        Description = "效果: 造成8伤害;骰点>=5时施加2层破甲",
-        EffectExplanation = "破甲: 伤害+1，每回合递减1层",
+        Description = "Deal 8 damage. Dice 5+: apply 2 Vulnerable.",
+        EffectExplanation = "Vulnerable: attack damage taken +1 per stack, reduced by 1 each enemy turn.",
         Type = CardType.Attack,
         Category = CardCategory.Basic,
         Subtype = CardSubtype.Attack,
@@ -169,6 +171,8 @@ public class CardData
         DamageFormula = (card, dice) => 8,
         AppliedDebuffType = DebuffType.Vulnerable,
         EffectAmount = 2,
+        ConditionalDiceThreshold = 5,
+        ConditionalEffectSummary = "Apply 2 Vulnerable",
         ApplyEffect = (card, dice, enemy) =>
         {
             if (dice.Value.GetValueOrDefault() >= 5)
@@ -184,8 +188,8 @@ public class CardData
     {
         Id = "quick_strike",
         Name = "QuickStrike",
-        Description = "效果: 造成4伤害",
-        EffectExplanation = "无",
+        Description = "Deal 4 damage.",
+        EffectExplanation = "",
         Type = CardType.Attack,
         Category = CardCategory.Basic,
         Subtype = CardSubtype.Attack,
@@ -202,8 +206,8 @@ public class CardData
     {
         Id = "vulnerable_strike",
         Name = "VulnerableStrike",
-        Description = "效果: 造成骰点+1伤害;骰点>=3时施加1层破甲",
-        EffectExplanation = "破甲: 伤害+1，每回合递减1层",
+        Description = "Deal die + 1 damage. Dice 3+: apply 1 Vulnerable.",
+        EffectExplanation = "Vulnerable: attack damage taken +1 per stack, reduced by 1 each enemy turn.",
         Type = CardType.Attack,
         Category = CardCategory.Basic,
         Subtype = CardSubtype.Attack,
@@ -214,6 +218,8 @@ public class CardData
         DamageFormula = (card, dice) => dice.Value.GetValueOrDefault() + 1,
         AppliedDebuffType = DebuffType.Vulnerable,
         EffectAmount = 1,
+        ConditionalDiceThreshold = 3,
+        ConditionalEffectSummary = "Apply 1 Vulnerable",
         ApplyEffect = (card, dice, enemy) =>
         {
             if (dice.Value.GetValueOrDefault() >= 3)
@@ -229,8 +235,8 @@ public class CardData
     {
         Id = "critical_hit",
         Name = "CriticalHit",
-        Description = "效果: 造成骰点+3伤害;骰点>=4时伤害翻倍",
-        EffectExplanation = "无",
+        Description = "Deal die + 3 damage. Dice 4+: double damage.",
+        EffectExplanation = "",
         Type = CardType.Attack,
         Category = CardCategory.Basic,
         Subtype = CardSubtype.Attack,
@@ -239,6 +245,8 @@ public class CardData
         DiceCost = 1,
         DiceType = "Any",
         DamageFormula = (card, dice) => dice.Value.GetValueOrDefault() + 3,
+        ConditionalDiceThreshold = 4,
+        ConditionalEffectSummary = "Double damage",
         ModifyDamage = (card, dice, baseDamage) =>
         {
             if (dice.Value.GetValueOrDefault() >= 4)
@@ -255,8 +263,8 @@ public class CardData
     {
         Id = "heavy_strike",
         Name = "HeavyStrike",
-        Description = "效果: 造成骰点+4伤害",
-        EffectExplanation = "无",
+        Description = "Deal die + 4 damage.",
+        EffectExplanation = "",
         Type = CardType.Attack,
         Category = CardCategory.Basic,
         Subtype = CardSubtype.Attack,
@@ -273,8 +281,8 @@ public class CardData
     {
         Id = "energy_barrier",
         Name = "EnergyBarrier",
-        Description = "效果: 获得5护盾",
-        EffectExplanation = "护盾: 优先于Energy承受伤害，持续2回合",
+        Description = "Gain 5 shield.",
+        EffectExplanation = "Shield absorbs damage before Energy.",
         Type = CardType.Skill,
         Category = CardCategory.Basic,
         Subtype = CardSubtype.Defense,
@@ -291,8 +299,8 @@ public class CardData
     {
         Id = "adrenaline",
         Name = "Adrenaline",
-        Description = "效果: 能量回复 3/2",
-        EffectExplanation = "能量回复: 下回合开始额外恢复3 Energy，持续2回合",
+        Description = "Restore extra Energy next turn.",
+        EffectExplanation = "Energy Regen restores extra Energy at the start of next turn.",
         Type = CardType.Skill,
         Category = CardCategory.Skill,
         Subtype = CardSubtype.PositiveBuff,
@@ -310,8 +318,8 @@ public class CardData
     {
         Id = "weak_pulse",
         Name = "WeakPulse",
-        Description = "效果: 造成3伤害;施加2层Weak",
-        EffectExplanation = "Weak: 敌人攻击伤害减少对应层数，持续2回合",
+        Description = "Deal 3 damage. Apply 2 Weak.",
+        EffectExplanation = "Weak reduces enemy attack damage by its stack count.",
         Type = CardType.Skill,
         Category = CardCategory.Skill,
         Subtype = CardSubtype.NegativeBuff,
@@ -330,8 +338,8 @@ public class CardData
     {
         Id = "energy_potion",
         Name = "EnergyPotion",
-        Description = "效果: 恢复5 Energy",
-        EffectExplanation = "消耗品: 每场战斗限用2次，使用后进入消耗堆",
+        Description = "Restore 5 Energy.",
+        EffectExplanation = "Consumable with limited uses per battle.",
         Type = CardType.Skill,
         Category = CardCategory.Consumable,
         Subtype = CardSubtype.BattleLevelConsumable,
@@ -348,8 +356,8 @@ public class CardData
     {
         Id = "iron_sword",
         Name = "IronSword",
-        Description = "效果: 装备 Weapon",
-        EffectExplanation = "Weapon: 装备武器，本场攻击伤害+2，持续3场",
+        Description = "Equip Weapon.",
+        EffectExplanation = "Weapon grants attack damage +2.",
         Type = CardType.Power,
         Category = CardCategory.Other,
         Subtype = CardSubtype.Equipment,
@@ -368,8 +376,8 @@ public class CardData
     {
         Id = "clumsy",
         Name = "Clumsy",
-        Description = "效果: 手牌上限-1",
-        EffectExplanation = "诅咒: 每回合触发，打出后15%消失/70%无事/15%强化",
+        Description = "Hand size -1.",
+        EffectExplanation = "Curse: may disappear, stay, or strengthen when played.",
         Type = CardType.Power,
         Category = CardCategory.Other,
         Subtype = CardSubtype.Curse,
@@ -391,8 +399,8 @@ public class CardData
     {
         Id = "wound",
         Name = "Wound",
-        Description = "效果: 每回合失去2 HP",
-        EffectExplanation = "诅咒: 临时诅咒，战斗结束销毁，打出后15%消失/70%无事/15%强化",
+        Description = "Lose 2 HP each turn.",
+        EffectExplanation = "Temporary curse removed after battle.",
         Type = CardType.Power,
         Category = CardCategory.Other,
         Subtype = CardSubtype.Curse,
@@ -438,6 +446,7 @@ public class CardData
         
         if (ModifyDamage != null)
         {
+            min = ModifyDamage(tempCard, minDice, min);
             max = ModifyDamage(tempCard, maxDice, max);
         }
     }

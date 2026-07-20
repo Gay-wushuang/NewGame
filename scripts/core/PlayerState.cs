@@ -3,6 +3,8 @@ using System.Collections.Generic;
 
 public class PlayerState
 {
+    private readonly System.Random _shuffleRng = new System.Random();
+
     public int MaxHp = 30;
     public int Hp = 30;
     
@@ -43,7 +45,7 @@ public class PlayerState
     
     public int TakeDamage(int damage)
     {
-        int totalDamage = damage;
+        int totalDamage = Mathf.Max(0, damage);
         
         int shieldDamage = Mathf.Min(totalDamage, Shield);
         Shield -= shieldDamage;
@@ -52,7 +54,7 @@ public class PlayerState
         int energyDamage = Mathf.Min(totalDamage, Energy);
         Energy -= energyDamage;
         int hpDamage = totalDamage - energyDamage;
-        Hp -= hpDamage;
+        Hp = Mathf.Max(0, Hp - hpDamage);
         
         return shieldDamage;
     }
@@ -78,7 +80,7 @@ public class PlayerState
     
     public void ConsumeEnergy(int amount)
     {
-        Energy -= amount;
+        Energy = Mathf.Max(0, Energy - amount);
     }
     
     public void PlayCard(CardInstance card)
@@ -98,10 +100,9 @@ public class PlayerState
     
     public void ShuffleDrawPile()
     {
-        var rng = new System.Random();
         for (int i = DrawPile.Count - 1; i > 0; i--)
         {
-            int j = rng.Next(i + 1);
+            int j = _shuffleRng.Next(i + 1);
             (DrawPile[i], DrawPile[j]) = (DrawPile[j], DrawPile[i]);
         }
     }
@@ -179,6 +180,37 @@ public class PlayerState
         }
         
         return null;
+    }
+
+    public List<DiceInstance> ConsumeDice(int count)
+    {
+        var consumedDice = new List<DiceInstance>();
+        for (int i = 0; i < count; i++)
+        {
+            DiceInstance dice = ConsumeNextDice();
+            if (dice == null)
+            {
+                RestoreDice(consumedDice);
+                return null;
+            }
+
+            consumedDice.Add(dice);
+        }
+
+        return consumedDice;
+    }
+
+    public void RestoreDice(List<DiceInstance> diceList)
+    {
+        if (diceList == null)
+            return;
+
+        foreach (var dice in diceList)
+        {
+            dice.Value = null;
+            dice.IsRolled = false;
+            dice.IsConsumed = false;
+        }
     }
     
     public bool IsAlive()

@@ -1,5 +1,4 @@
 using Godot;
-using System.Collections.Generic;
 
 public partial class BattleUI : Control
 {
@@ -23,14 +22,28 @@ public partial class BattleUI : Control
     private HBoxContainer _cardContainer;
     private Button _endTurnButton;
     private PackedScene _cardViewScene;
-    
+    private CardPileBrowser _cardPileBrowser;
+    private ColorRect _drawPileBg;
+    private ColorRect _discardPileBg;
+    private ColorRect _exhaustPileBg;
+    private Label _drawPileCount;
+    private Label _discardPileCount;
+    private Label _exhaustPileCount;
+
+    private readonly Color _drawPileColor = new Color(0.898f, 0.784f, 0.0f);
+    private readonly Color _discardPileColor = new Color(0.8f, 0.2f, 0.2f);
+    private readonly Color _exhaustPileColor = new Color(0.2f, 0.667f, 0.267f);
+    private readonly Color _drawPileEmptyColor = new Color(0.541f, 0.478f, 0.267f);
+    private readonly Color _discardPileEmptyColor = new Color(0.533f, 0.267f, 0.267f);
+    private readonly Color _exhaustPileEmptyColor = new Color(0.267f, 0.467f, 0.267f);
+
     private BattleManager _battleManager;
     private int _previewingCardIndex = -1;
-    
+
     public override void _Ready()
     {
         _battleManager = GetNode<BattleManager>("../BattleManager");
-        
+
         _playerHpLabel = GetNode<Label>("TopPanel/PlayerStatus/PlayerHpLabel");
         _playerEnergyLabel = GetNode<Label>("TopPanel/PlayerStatus/PlayerEnergyLabel");
         _playerShieldLabel = GetNode<Label>("TopPanel/PlayerStatus/PlayerShieldLabel");
@@ -48,7 +61,25 @@ public partial class BattleUI : Control
         _cardContainer = GetNode<HBoxContainer>("CardPanel/CardContainer");
         _endTurnButton = GetNode<Button>("EndTurnButton");
         _cardViewScene = GD.Load<PackedScene>("res://scenes/card/CardView.tscn");
-        
+
+        _drawPileBg = GetNode<ColorRect>("PileBar/DrawPilePanel/DrawPileView/DrawPileBg");
+        _discardPileBg = GetNode<ColorRect>("PileBar/DiscardPilePanel/DiscardPileView/DiscardPileBg");
+        _exhaustPileBg = GetNode<ColorRect>("PileBar/ExhaustPilePanel/ExhaustPileView/ExhaustPileBg");
+        _drawPileCount = GetNode<Label>("PileBar/DrawPilePanel/DrawPileView/DrawPileCount");
+        _discardPileCount = GetNode<Label>("PileBar/DiscardPilePanel/DiscardPileView/DiscardPileCount");
+        _exhaustPileCount = GetNode<Label>("PileBar/ExhaustPilePanel/ExhaustPileView/ExhaustPileCount");
+
+        GetNode<PanelContainer>("PileBar/DrawPilePanel").GuiInput += (InputEvent e) => OnPileClicked(e, "DrawPile");
+        GetNode<PanelContainer>("PileBar/DiscardPilePanel").GuiInput += (InputEvent e) => OnPileClicked(e, "DiscardPile");
+        GetNode<PanelContainer>("PileBar/ExhaustPilePanel").GuiInput += (InputEvent e) => OnPileClicked(e, "ExhaustPile");
+
+        LoadCardPileBrowser();
+        ConnectBattleSignals();
+        UpdateUI();
+    }
+
+    private void ConnectBattleSignals()
+    {
         _battleManager.PlayerTurnStarted += OnPlayerTurnStarted;
         _battleManager.PlayerTurnEnded += OnPlayerTurnEnded;
         _battleManager.CardPlayed += OnCardPlayed;
@@ -57,148 +88,187 @@ public partial class BattleUI : Control
         _battleManager.BattleWon += OnBattleWon;
         _battleManager.BattleLost += OnBattleLost;
         _endTurnButton.Pressed += OnEndTurnPressed;
-        
-        UpdateUI();
     }
-    
+
     public void OnPlayerTurnStarted(int turn)
     {
-        _turnLabel.Text = $"回合 {turn}";
+        _turnLabel.Text = $"Turn {turn}";
         _battleResultLabel.Visible = false;
         _cardPreviewPanel.Visible = false;
         _endTurnButton.Visible = true;
         _endTurnButton.Disabled = false;
         UpdateUI();
     }
-    
+
     public void OnPlayerTurnEnded()
     {
         _endTurnButton.Disabled = true;
     }
-    
+
     public void OnCardPlayed(string cardId, int damage, int diceResult, int vulnerableAdded)
     {
-        string resultText;
-        if (diceResult < 0)
-            resultText = $"{cardId} 造成 {damage} 伤害";
-        else
-            resultText = $"{cardId} 掷出 {diceResult}，造成 {damage} 伤害";
+        string resultText = diceResult < 0
+            ? $"{cardId} dealt {damage} damage"
+            : $"{cardId} rolled {diceResult}, dealt {damage} damage";
+
         if (vulnerableAdded > 0)
-        {
-            resultText += $"\n施加 {vulnerableAdded} 层破甲";
-        }
+            resultText += $"\nApplied {vulnerableAdded} Vulnerable";
+
         _battleResultLabel.Text = resultText;
         _battleResultLabel.Visible = true;
         _cardPreviewPanel.Visible = false;
     }
-    
+
     public void OnCardResolved(string cardId, string subtype)
     {
         _cardPreviewPanel.Visible = false;
         UpdateUI();
     }
-    
+
     public void OnEnemyAttacked(int damage, int energyBefore, int energyAfter, int hpBefore, int hpAfter)
     {
-        _battleResultLabel.Text = $"敌人攻击 {damage}\nEnergy: {energyBefore} → {energyAfter}\nHP: {hpBefore} → {hpAfter}";
+        _battleResultLabel.Text = $"Enemy attacked for {damage}\nEnergy: {energyBefore} -> {energyAfter}\nHP: {hpBefore} -> {hpAfter}";
         _battleResultLabel.Visible = true;
         _cardPreviewPanel.Visible = false;
         UpdateUI();
     }
-    
+
     public void OnBattleWon()
     {
-        _battleResultLabel.Text = "胜利!";
+        _battleResultLabel.Text = "Victory!";
         _battleResultLabel.Visible = true;
         _cardPreviewPanel.Visible = false;
         _endTurnButton.Visible = false;
     }
-    
+
     public void OnBattleLost()
     {
-        _battleResultLabel.Text = "失败!";
+        _battleResultLabel.Text = "Defeat!";
         _battleResultLabel.Visible = true;
         _cardPreviewPanel.Visible = false;
         _endTurnButton.Visible = false;
     }
-    
+
     public void OnEndTurnPressed()
     {
         _battleManager.SkipTurn();
     }
-    
+
     public void UpdateUI()
     {
         if (_battleManager.Player != null)
         {
             _playerHpLabel.Text = $"HP: {_battleManager.Player.Hp}/{_battleManager.Player.MaxHp}";
             _playerEnergyLabel.Text = $"Energy: {_battleManager.Player.Energy}/{_battleManager.Player.MaxEnergy}";
-            _playerShieldLabel.Text = _battleManager.Player.Shield > 0 ? $"护盾: {_battleManager.Player.Shield}" : "";
+            _playerShieldLabel.Text = _battleManager.Player.Shield > 0 ? $"Shield: {_battleManager.Player.Shield}" : "";
             _playerShieldLabel.Visible = _battleManager.Player.Shield > 0;
         }
-        
+
         if (_battleManager.Enemy != null)
         {
             _enemyHpLabel.Text = $"HP: {_battleManager.Enemy.Hp}/{_battleManager.Enemy.MaxHp}";
             if (_battleManager.Enemy.Shield > 0)
-            {
-                _enemyHpLabel.Text += $" 护盾: {_battleManager.Enemy.Shield}";
-            }
-            _enemyIntentLabel.Text = $"意图: {_battleManager.Enemy.CurrentIntent.Description}";
-            
+                _enemyHpLabel.Text += $" Shield: {_battleManager.Enemy.Shield}";
+
+            _enemyIntentLabel.Text = $"Intent: {_battleManager.Enemy.CurrentIntent.Description}";
+
             int vulnerable = _battleManager.Enemy.GetVulnerableStacks();
-            _enemyVulnerableLabel.Text = vulnerable > 0 ? $"破甲: {vulnerable}" : "";
+            _enemyVulnerableLabel.Text = vulnerable > 0 ? $"Vulnerable: {vulnerable}" : "";
             _enemyVulnerableLabel.Visible = vulnerable > 0;
         }
-        
+
         UpdateDiceUI();
         UpdateCardUI();
+        UpdatePileCounts();
     }
-    
+
+    private void LoadCardPileBrowser()
+    {
+        var browserScene = GD.Load<PackedScene>("res://scenes/ui/CardPileBrowser.tscn");
+        if (browserScene == null)
+            return;
+
+        _cardPileBrowser = browserScene.Instantiate<CardPileBrowser>();
+        AddChild(_cardPileBrowser);
+        _cardPileBrowser.CardMoved += UpdateUI;
+    }
+
+    private void OnPileClicked(InputEvent @event, string pileName)
+    {
+        if (@event is not InputEventMouseButton mouseEvent ||
+            mouseEvent.ButtonIndex != MouseButton.Left ||
+            !mouseEvent.Pressed)
+        {
+            return;
+        }
+
+        if (!_battleManager.IsBattleActive || _battleManager.Player == null || _cardPileBrowser == null)
+            return;
+
+        switch (pileName)
+        {
+            case "DrawPile":
+                _cardPileBrowser.OpenPile("Draw Pile", _battleManager.Player, _battleManager.Player.DrawPile, true);
+                break;
+            case "DiscardPile":
+                _cardPileBrowser.OpenPile("Discard Pile", _battleManager.Player, _battleManager.Player.DiscardPile, true);
+                break;
+            case "ExhaustPile":
+                _cardPileBrowser.OpenPile("Exhaust Pile", _battleManager.Player, _battleManager.Player.ExhaustPile, true);
+                break;
+        }
+    }
+
+    private void UpdatePileCounts()
+    {
+        if (_battleManager.Player == null)
+            return;
+
+        int drawCount = _battleManager.Player.DrawPile.Count;
+        int discardCount = _battleManager.Player.DiscardPile.Count;
+        int exhaustCount = _battleManager.Player.ExhaustPile.Count;
+
+        _drawPileCount.Text = drawCount.ToString();
+        _discardPileCount.Text = discardCount.ToString();
+        _exhaustPileCount.Text = exhaustCount.ToString();
+
+        _drawPileBg.Color = drawCount == 0 ? _drawPileEmptyColor : _drawPileColor;
+        _discardPileBg.Color = discardCount == 0 ? _discardPileEmptyColor : _discardPileColor;
+        _exhaustPileBg.Color = exhaustCount == 0 ? _exhaustPileEmptyColor : _exhaustPileColor;
+    }
+
     private void UpdateDiceUI()
     {
         foreach (Node child in _diceContainer.GetChildren())
-        {
             child.QueueFree();
-        }
-        
+
         if (_battleManager.Player == null)
             return;
-        
-        int diceIndex = 0;
+
         foreach (var dice in _battleManager.Player.DicePool)
         {
-            Button diceBtn = new Button();
-            diceBtn.Text = dice.IsConsumed
-                ? $"d{dice.Sides}\n{dice.Value}"
-                : $"d{dice.Sides}\n?";
-            diceBtn.CustomMinimumSize = new Vector2(0, 0);
-            diceBtn.Modulate = dice.IsConsumed ? new Color(0.5f, 0.5f, 0.5f) : new Color(1, 1, 1);
-            diceBtn.Disabled = true;
-            
-            _diceContainer.AddChild(diceBtn);
-            diceIndex++;
+            Button diceButton = new Button();
+            diceButton.Text = dice.IsConsumed ? $"d{dice.Sides}\n{dice.Value}" : $"d{dice.Sides}\n?";
+            diceButton.CustomMinimumSize = Vector2.Zero;
+            diceButton.Modulate = dice.IsConsumed ? new Color(0.5f, 0.5f, 0.5f) : Colors.White;
+            diceButton.Disabled = true;
+
+            _diceContainer.AddChild(diceButton);
         }
     }
-    
+
     private void UpdateCardUI()
     {
         foreach (Node child in _cardContainer.GetChildren())
-        {
             child.QueueFree();
-        }
-        
+
         if (_battleManager.Player == null)
             return;
-        
-        int cardIndex = 0;
-        foreach (var card in _battleManager.Player.Hand)
+
+        for (int cardIndex = 0; cardIndex < _battleManager.Player.Hand.Count; cardIndex++)
         {
-            int index = cardIndex;
-            Control cardControl = CreateHandCardView(card, index);
-            
+            Control cardControl = CreateHandCardView(_battleManager.Player.Hand[cardIndex], cardIndex);
             _cardContainer.AddChild(cardControl);
-            cardIndex++;
         }
     }
 
@@ -206,13 +276,12 @@ public partial class BattleUI : Control
     {
         var wrapper = new Control();
         wrapper.CustomMinimumSize = HandCardSize;
-        wrapper.SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter;
-        wrapper.SizeFlagsVertical = Control.SizeFlags.ShrinkCenter;
+        wrapper.SizeFlagsHorizontal = SizeFlags.ShrinkCenter;
+        wrapper.SizeFlagsVertical = SizeFlags.ShrinkCenter;
         wrapper.GuiInput += (InputEvent @event) => OnCardGuiInput(@event, cardIndex);
 
         var cardView = _cardViewScene.Instantiate<CardView>();
         cardView.Scale = new Vector2(HandCardScale, HandCardScale);
-        cardView.MouseFilter = MouseFilterEnum.Ignore;
         ApplyCardView(cardView, card, _previewingCardIndex == cardIndex);
         SetMouseFilterRecursive(cardView, MouseFilterEnum.Ignore);
         wrapper.AddChild(cardView);
@@ -222,247 +291,84 @@ public partial class BattleUI : Control
 
         return wrapper;
     }
-    
+
     private void OnCardGuiInput(InputEvent @event, int cardIndex)
     {
         if (!_battleManager.IsBattleActive)
             return;
-            
-        if (@event is InputEventMouseButton mouseEvent && mouseEvent.ButtonIndex == MouseButton.Left)
+
+        if (@event is not InputEventMouseButton mouseEvent ||
+            mouseEvent.ButtonIndex != MouseButton.Left ||
+            !mouseEvent.IsPressed())
         {
-            if (mouseEvent.IsPressed())
-            {
-                if (mouseEvent.DoubleClick)
-                {
-                    OnCardDoubleClicked(cardIndex);
-                }
-                else
-                {
-                    OnCardSingleClicked(cardIndex);
-                }
-            }
+            return;
         }
+
+        if (mouseEvent.DoubleClick)
+            OnCardDoubleClicked(cardIndex);
+        else
+            OnCardSingleClicked(cardIndex);
     }
-    
+
     private void OnCardSingleClicked(int cardIndex)
     {
-        if (_battleManager.Player != null && cardIndex < _battleManager.Player.Hand.Count)
+        if (_battleManager.Player == null || cardIndex >= _battleManager.Player.Hand.Count)
+            return;
+
+        CardInstance card = _battleManager.Player.Hand[cardIndex];
+        if (_previewingCardIndex == cardIndex && _cardPreviewPanel.Visible)
         {
-            CardInstance card = _battleManager.Player.Hand[cardIndex];
-            
-            if (_previewingCardIndex == cardIndex && _cardPreviewPanel.Visible)
-            {
-                HideCardPreview();
-            }
-            else
-            {
-                _previewingCardIndex = cardIndex;
-                ShowCardPreview(card);
-            }
+            HideCardPreview();
+            return;
         }
+
+        _previewingCardIndex = cardIndex;
+        ShowCardPreview(card);
     }
-    
+
     private void HideCardPreview()
     {
         _cardPreviewPanel.Visible = false;
         _previewingCardIndex = -1;
         UpdateCardUI();
     }
-    
+
     private void OnCardDoubleClicked(int cardIndex)
     {
-        if (_battleManager.Player != null && cardIndex < _battleManager.Player.Hand.Count)
-        {
-            CardInstance card = _battleManager.Player.Hand[cardIndex];
-            
-            if (card.Data.Subtype == CardSubtype.Curse)
-            {
-                _battleManager.TryPlayCard(card);
-                return;
-            }
-            
-            if (!_battleManager.Player.CanPlayCard(card))
-                return;
-            
-            _battleManager.TryPlayCard(card);
-        }
+        if (_battleManager.Player == null || cardIndex >= _battleManager.Player.Hand.Count)
+            return;
+
+        CardInstance card = _battleManager.Player.Hand[cardIndex];
+        if (card.Data.Subtype != CardSubtype.Curse && !_battleManager.Player.CanPlayCard(card))
+            return;
+
+        _battleManager.TryPlayCard(card);
     }
-    
+
     private void ShowCardPreview(CardInstance card)
     {
         _previewNameLabel.Text = CardDisplayFormatter.FormatName(card.Data);
-        _previewSummaryLabel.Text = $"{FormatCardTypeLabel(card.Data)} · {FormatCardStatLine(card.Data, card, true)}";
-        _previewRuleLabel.Text = FormatPreviewRuleText(card);
+        _previewSummaryLabel.Text = $"{CardDisplayFormatter.FormatCardTypeLabel(card.Data)} - {CardDisplayFormatter.FormatCardStatLine(card.Data, card, _battleManager.Player.DiceSides, _battleManager.Enemy, true)}";
+        _previewRuleLabel.Text = CardDisplayFormatter.FormatPreviewRuleText(card, _battleManager.Player.DiceSides, _battleManager.Enemy);
 
         string keywordText = CardDisplayFormatter.FormatKeywordText(card.Data);
         _previewKeywordLabel.Visible = !string.IsNullOrEmpty(keywordText);
         _previewKeywordLabel.Text = keywordText;
-        
+
         _cardPreviewPanel.Visible = true;
         _battleResultLabel.Visible = false;
         UpdateCardUI();
     }
 
-    private string FormatCardTypeLabel(CardData data)
-    {
-        switch (data.Subtype)
-        {
-            case CardSubtype.Attack:
-                return "Attack";
-            case CardSubtype.Defense:
-                return "Defense";
-            case CardSubtype.PositiveBuff:
-                return "Buff";
-            case CardSubtype.NegativeBuff:
-                return "Debuff";
-            case CardSubtype.BattleLevelConsumable:
-            case CardSubtype.GameLevelConsumable:
-                return "Item";
-            case CardSubtype.Equipment:
-                return "Equip";
-            case CardSubtype.Curse:
-                return "Curse";
-            default:
-                return data.Type.ToString();
-        }
-    }
-
     private void ApplyCardView(CardView view, CardInstance card, bool contextual)
     {
-        view.Setup(card.Data, card, _battleManager.Player.DiceSides, contextual,
-            (data, inst) => FormatCardStatLine(data, inst, contextual),
-            (inst) => FormatCardFaceRuleText(inst, contextual));
-    }
-
-    private string FormatCardStatLine(CardData data, CardInstance card, bool contextual)
-    {
-        if (data.DamageFormula != null)
-        {
-            GetDamageRange(data, contextual, out int minDamage, out int maxDamage);
-            return minDamage == maxDamage ? $"DMG {minDamage}" : $"DMG {minDamage}~{maxDamage}";
-        }
-
-        if (data.Subtype == CardSubtype.Defense && data.ShieldValue > 0)
-        {
-            return $"Shield {data.ShieldValue}";
-        }
-
-        if (data.Subtype == CardSubtype.Curse)
-        {
-            return card.CurseStacks > 1 ? $"Stacks {card.CurseStacks}" : "Curse";
-        }
-
-        if (data.EffectAmount > 0)
-        {
-            return $"Effect {data.EffectAmount}";
-        }
-
-        return "Effect";
-    }
-
-    private string FormatCardFaceRuleText(CardInstance card, bool contextual)
-    {
-        var parts = new List<string>();
-        CardData data = card.Data;
-
-        if (data.DamageFormula != null)
-        {
-            GetDamageRange(data, contextual, out int minDamage, out int maxDamage);
-            string label = contextual ? "当前伤害" : "基础伤害";
-            parts.Add(minDamage == maxDamage ? $"{label}: {minDamage}" : $"{label}: {minDamage}~{maxDamage}");
-        }
-
-        string condition = FormatConditionLine(data);
-        if (!string.IsNullOrEmpty(condition))
-        {
-            parts.Add(condition);
-        }
-
-        if (data.Subtype == CardSubtype.Defense && data.ShieldValue > 0)
-        {
-            parts.Add($"护盾: {data.ShieldValue}");
-        }
-
-        if (data.Subtype == CardSubtype.Curse)
-        {
-            parts.Add(CardDisplayFormatter.FormatRuleText(data, card, _battleManager.Player.DiceSides));
-        }
-
-        return parts.Count > 0 ? string.Join("\n", parts) : "效果";
-    }
-
-    private string FormatPreviewRuleText(CardInstance card)
-    {
-        var parts = new List<string>();
-        CardData data = card.Data;
-
-        if (data.DamageFormula != null)
-        {
-            data.GetDamageRange(_battleManager.Player.DiceSides, out int baseMin, out int baseMax);
-            GetDamageRange(data, true, out int currentMin, out int currentMax);
-
-            parts.Add(baseMin == baseMax ? $"基础伤害: {baseMin}" : $"基础伤害: {baseMin}~{baseMax}");
-            if (currentMin != baseMin || currentMax != baseMax)
-            {
-                parts.Add(currentMin == currentMax ? $"当前预计: {currentMin}" : $"当前预计: {currentMin}~{currentMax}");
-            }
-        }
-
-        string condition = FormatConditionLine(data);
-        if (!string.IsNullOrEmpty(condition))
-        {
-            parts.Add(condition);
-        }
-
-        string ruleText = CardDisplayFormatter.FormatRuleText(data, card, _battleManager.Player.DiceSides);
-        if (parts.Count == 0 && !string.IsNullOrEmpty(ruleText))
-        {
-            parts.Add(ruleText);
-        }
-
-        return parts.Count > 0 ? string.Join("\n", parts) : "无额外效果。";
-    }
-
-    private void GetDamageRange(CardData data, bool contextual, out int minDamage, out int maxDamage)
-    {
-        data.GetDamageRange(_battleManager.Player.DiceSides, out minDamage, out maxDamage);
-
-        if (!contextual || data.DamageFormula == null || _battleManager.Enemy == null)
-        {
-            return;
-        }
-
-        int vulnerable = _battleManager.Enemy.GetVulnerableStacks();
-        if (vulnerable > 0 && data.Subtype == CardSubtype.Attack)
-        {
-            minDamage += vulnerable;
-            maxDamage += vulnerable;
-        }
-    }
-
-    private string FormatConditionLine(CardData data)
-    {
-        switch (data.Id)
-        {
-            case "break_core":
-                return "骰点 5+: 施加 2 层破甲";
-            case "vulnerable_strike":
-                return "骰点 3+: 施加 1 层破甲";
-            case "critical_hit":
-                return "骰点 4+: 伤害翻倍";
-            default:
-                return "";
-        }
-    }
-
-    private string FormatArtNote(CardData data)
-    {
-        if (!string.IsNullOrEmpty(data.VisualKey))
-        {
-            return $"AI art slot\n{data.VisualKey}";
-        }
-
-        return "AI art slot\n448 x 320";
+        view.Setup(
+            card.Data,
+            card,
+            _battleManager.Player.DiceSides,
+            contextual,
+            (data, inst) => CardDisplayFormatter.FormatCardStatLine(data, inst, _battleManager.Player.DiceSides, _battleManager.Enemy, contextual),
+            (inst) => CardDisplayFormatter.FormatCardFaceRuleText(inst, _battleManager.Player.DiceSides, _battleManager.Enemy, contextual));
     }
 
     private void SetMouseFilterRecursive(Control control, MouseFilterEnum mouseFilter)
@@ -471,9 +377,7 @@ public partial class BattleUI : Control
         foreach (Node child in control.GetChildren())
         {
             if (child is Control childControl)
-            {
                 SetMouseFilterRecursive(childControl, mouseFilter);
-            }
         }
     }
 }

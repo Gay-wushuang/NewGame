@@ -129,7 +129,7 @@ public partial class CardLayoutDemo : Control
         root.AddChild(artPanel);
 
         root.AddChild(CreatePanel(new Vector2(32, 440), new Vector2(448, 48), PanelColor, StrokeColor, 2, 4));
-        root.AddChild(CreateLabel($"{card.Type} · {card.Target} · {card.StatLine}", new Vector2(48, 449), new Vector2(416, 30), 24, MutedTextColor, HorizontalAlignment.Center));
+        root.AddChild(CreateLabel($"{card.Type} - {card.Target} - {card.StatLine}", new Vector2(48, 449), new Vector2(416, 30), 24, MutedTextColor, HorizontalAlignment.Center));
 
         root.AddChild(CreatePanel(new Vector2(32, 504), new Vector2(448, 216), PanelColor, StrokeColor, 2, 4));
         root.AddChild(CreateLabel(card.RulesText, new Vector2(56, 528), new Vector2(400, 156), 30, TextColor, HorizontalAlignment.Left));
@@ -143,7 +143,7 @@ public partial class CardLayoutDemo : Control
         root.AddChild(CreatePanel(new Vector2(32, 32), new Vector2(448, 704), new Color("#0f1420"), StrokeColor, 3, 4));
 
         var core = new Label();
-        core.Text = "◆\nDICE\nCORE\n◆";
+        core.Text = "*\nDICE\nCORE\n*";
         core.AddThemeFontSizeOverride("font_size", 52);
         core.AddThemeColorOverride("font_color", EnergyColor);
         core.HorizontalAlignment = HorizontalAlignment.Center;

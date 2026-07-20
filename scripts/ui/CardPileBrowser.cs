@@ -64,7 +64,7 @@ public partial class CardPileBrowser : Control
 			child.QueueFree();
 		}
 		
-		_miniCostLabel.Text = "消耗";
+		_miniCostLabel.Text = "Cost";
 		_miniRuleLabel.Text = "";
 		_miniKeywordLabel.Visible = false;
 		_miniKeywordLabel.Text = "";
@@ -72,7 +72,7 @@ public partial class CardPileBrowser : Control
 		if (_pile == null || _pile.Count == 0)
 		{
 			Label emptyLabel = new Label();
-			emptyLabel.Text = "堆内无牌";
+			emptyLabel.Text = "No cards";
 			emptyLabel.HorizontalAlignment = HorizontalAlignment.Center;
 			_cardList.AddChild(emptyLabel);
 			return;
@@ -110,12 +110,12 @@ public partial class CardPileBrowser : Control
 	{
 		_previewingCard = card;
 		
-		string diceText = card.Data.DiceCost > 0 ? card.Data.DiceCost.ToString() : "无需";
+		string diceText = card.Data.DiceCost > 0 ? card.Data.DiceCost.ToString() : "none";
 		_miniCostLabel.Text = $"Energy: {card.Data.EnergyCost}  Dice: {diceText}";
 		
-		_miniRuleLabel.Text = card.Data.Description;
+		_miniRuleLabel.Text = CardDisplayFormatter.FormatRuleText(card.Data, card, _player.DiceSides);
 		
-		string keywordText = card.Data.EffectExplanation;
+		string keywordText = CardDisplayFormatter.FormatKeywordText(card.Data);
 		_miniKeywordLabel.Visible = !string.IsNullOrEmpty(keywordText);
 		_miniKeywordLabel.Text = keywordText;
 	}

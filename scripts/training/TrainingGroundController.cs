@@ -1,4 +1,4 @@
-using Godot;
+﻿using Godot;
 
 public partial class TrainingGroundController : Node
 {
@@ -8,7 +8,6 @@ public partial class TrainingGroundController : Node
 
     private BattleManager _battleManager;
     private BattleLogPanel _battleLogPanel;
-    private CardPileBrowser _cardPileBrowser;
     private BattleUI _battleUI;
     
     private LineEdit _playerHpInput;
@@ -49,21 +48,6 @@ public partial class TrainingGroundController : Node
     private Label _deckMiniCostLabel;
     private Label _deckMiniRuleLabel;
     private Label _deckMiniKeywordLabel;
-    
-    private ColorRect _drawPileBg;
-    private ColorRect _discardPileBg;
-    private ColorRect _exhaustPileBg;
-    private Label _drawPileCount;
-    private Label _discardPileCount;
-    private Label _exhaustPileCount;
-    
-    private readonly Color _drawPileColor = new Color(0.898f, 0.784f, 0.0f);
-    private readonly Color _discardPileColor = new Color(0.8f, 0.2f, 0.2f);
-    private readonly Color _exhaustPileColor = new Color(0.2f, 0.667f, 0.267f);
-    
-    private readonly Color _drawPileEmptyColor = new Color(0.541f, 0.478f, 0.267f);
-    private readonly Color _discardPileEmptyColor = new Color(0.533f, 0.267f, 0.267f);
-    private readonly Color _exhaustPileEmptyColor = new Color(0.267f, 0.467f, 0.267f);
     
     private TrainingConfig _config = new TrainingConfig();
     private PackedScene _cardViewScene;
@@ -115,21 +99,6 @@ public partial class TrainingGroundController : Node
         
         _cardViewScene = GD.Load<PackedScene>("res://scenes/card/CardView.tscn");
         
-        _drawPileBg = GetNode<ColorRect>("PileBar/DrawPilePanel/DrawPileView/DrawPileBg");
-        _discardPileBg = GetNode<ColorRect>("PileBar/DiscardPilePanel/DiscardPileView/DiscardPileBg");
-        _exhaustPileBg = GetNode<ColorRect>("PileBar/ExhaustPilePanel/ExhaustPileView/ExhaustPileBg");
-        _drawPileCount = GetNode<Label>("PileBar/DrawPilePanel/DrawPileView/DrawPileCount");
-        _discardPileCount = GetNode<Label>("PileBar/DiscardPilePanel/DiscardPileView/DiscardPileCount");
-        _exhaustPileCount = GetNode<Label>("PileBar/ExhaustPilePanel/ExhaustPileView/ExhaustPileCount");
-        
-        var drawPilePanel = GetNode<PanelContainer>("PileBar/DrawPilePanel");
-        var discardPilePanel = GetNode<PanelContainer>("PileBar/DiscardPilePanel");
-        var exhaustPilePanel = GetNode<PanelContainer>("PileBar/ExhaustPilePanel");
-        
-        drawPilePanel.GuiInput += (InputEvent e) => OnPileClicked(e, "DrawPile");
-        discardPilePanel.GuiInput += (InputEvent e) => OnPileClicked(e, "DiscardPile");
-        exhaustPilePanel.GuiInput += (InputEvent e) => OnPileClicked(e, "ExhaustPile");
-        
         _playerHpInput.Text = _config.PlayerHp.ToString();
         _playerEnergyInput.Text = _config.PlayerEnergy.ToString();
         _diceCountInput.Text = _config.DiceCount.ToString();
@@ -168,60 +137,8 @@ public partial class TrainingGroundController : Node
         
         
         _battleManager.BattleLog += _battleLogPanel.AddLog;
-        _battleManager.CardResolved += (string cardId, string subtype) => UpdatePileCounts();
-        
-        LoadCardPileBrowser();
         
         ResetBattle();
-    }
-    
-    private void LoadCardPileBrowser()
-    {
-        var browserScene = GD.Load<PackedScene>("res://scenes/ui/CardPileBrowser.tscn");
-        if (browserScene != null)
-        {
-            _cardPileBrowser = browserScene.Instantiate<CardPileBrowser>();
-            AddChild(_cardPileBrowser);
-            _cardPileBrowser.CardMoved += () => _battleUI.UpdateUI();
-        }
-    }
-    
-    private void OnPileClicked(InputEvent @event, string pileName)
-    {
-        if (@event is InputEventMouseButton mb && mb.ButtonIndex == MouseButton.Left && mb.Pressed)
-        {
-            if (!_battleManager.IsBattleActive || _cardPileBrowser == null) return;
-            
-            switch (pileName)
-            {
-                case "DrawPile":
-                    _cardPileBrowser.OpenPile("抽牌堆", _battleManager.Player, _battleManager.Player.DrawPile, true);
-                    break;
-                case "DiscardPile":
-                    _cardPileBrowser.OpenPile("弃牌堆", _battleManager.Player, _battleManager.Player.DiscardPile, true);
-                    break;
-                case "ExhaustPile":
-                    _cardPileBrowser.OpenPile("消耗堆", _battleManager.Player, _battleManager.Player.ExhaustPile, true);
-                    break;
-            }
-        }
-    }
-    
-    private void UpdatePileCounts()
-    {
-        if (_battleManager.Player == null) return;
-        
-        int drawCount = _battleManager.Player.DrawPile.Count;
-        int discardCount = _battleManager.Player.DiscardPile.Count;
-        int exhaustCount = _battleManager.Player.ExhaustPile.Count;
-        
-        _drawPileCount.Text = drawCount.ToString();
-        _discardPileCount.Text = discardCount.ToString();
-        _exhaustPileCount.Text = exhaustCount.ToString();
-        
-        _drawPileBg.Color = drawCount == 0 ? _drawPileEmptyColor : _drawPileColor;
-        _discardPileBg.Color = discardCount == 0 ? _discardPileEmptyColor : _discardPileColor;
-        _exhaustPileBg.Color = exhaustCount == 0 ? _exhaustPileEmptyColor : _exhaustPileColor;
     }
     
     private void OnDeckToggle()
@@ -241,9 +158,9 @@ public partial class TrainingGroundController : Node
         foreach (var child in _deckCardList.GetChildren())
             child.QueueFree();
         
-        _deckTitleLabel.Text = $"卡包 (共 {_battleManager.Player.Deck.Count} 张)";
+        _deckTitleLabel.Text = $"Deck ({_battleManager.Player.Deck.Count})";
         
-        _deckMiniCostLabel.Text = "消耗";
+        _deckMiniCostLabel.Text = "Cost";
         _deckMiniRuleLabel.Text = "";
         _deckMiniKeywordLabel.Visible = false;
         _deckMiniKeywordLabel.Text = "";
@@ -286,12 +203,12 @@ public partial class TrainingGroundController : Node
     {
         if (@event is InputEventMouseButton mouseEvent && mouseEvent.ButtonIndex == MouseButton.Left && mouseEvent.Pressed)
         {
-            string diceText = card.Data.DiceCost > 0 ? card.Data.DiceCost.ToString() : "无需";
+            string diceText = card.Data.DiceCost > 0 ? card.Data.DiceCost.ToString() : "none";
             _deckMiniCostLabel.Text = $"Energy: {card.Data.EnergyCost}  Dice: {diceText}";
             
-            _deckMiniRuleLabel.Text = card.Data.Description;
+            _deckMiniRuleLabel.Text = CardDisplayFormatter.FormatRuleText(card.Data, card, _battleManager.Player.DiceSides);
             
-            string keywordText = card.Data.EffectExplanation;
+            string keywordText = CardDisplayFormatter.FormatKeywordText(card.Data);
             _deckMiniKeywordLabel.Visible = !string.IsNullOrEmpty(keywordText);
             _deckMiniKeywordLabel.Text = keywordText;
         }
@@ -427,19 +344,19 @@ public partial class TrainingGroundController : Node
         
         ParseConfig();
         
-        _battleLogPanel.AddLog("=== 训练场已重置 ===");
-        _battleLogPanel.AddLog($"玩家: {_config.PlayerHp} HP, {_config.PlayerEnergy} Energy");
-        _battleLogPanel.AddLog($"骰子: {_config.DiceCount}d{_config.DiceSides}");
-        _battleLogPanel.AddLog($"掷骰模式: {_config.RollMode}");
+        _battleLogPanel.AddLog("=== Training ground reset ===");
+        _battleLogPanel.AddLog($"Player: {_config.PlayerHp} HP, {_config.PlayerEnergy} Energy");
+        _battleLogPanel.AddLog($"Dice: {_config.DiceCount}d{_config.DiceSides}");
+        _battleLogPanel.AddLog($"Roll mode: {_config.RollMode}");
         if (_config.RollMode == RollMode.Fixed)
         {
-            _battleLogPanel.AddLog($"固定骰点: {_config.FixedRollValue}");
+            _battleLogPanel.AddLog($"Fixed roll: {_config.FixedRollValue}");
         }
-        _battleLogPanel.AddLog($"敌人: {_config.EnemyType}");
-        _battleLogPanel.AddLog($"敌人 HP: {_config.EnemyHp}");
-        _battleLogPanel.AddLog($"敌人攻击: {_config.EnemyAttack}");
-        _battleLogPanel.AddLog($"敌人护盾: {_config.EnemyShield}");
-        _battleLogPanel.AddLog($"敌人意图: {_config.EnemyIntent} ({_config.EnemyIntentValue})");
+        _battleLogPanel.AddLog($"Enemy: {_config.EnemyType}");
+        _battleLogPanel.AddLog($"Enemy HP: {_config.EnemyHp}");
+        _battleLogPanel.AddLog($"Enemy attack: {_config.EnemyAttack}");
+        _battleLogPanel.AddLog($"Enemy shield: {_config.EnemyShield}");
+        _battleLogPanel.AddLog($"Enemy intent: {_config.EnemyIntent} ({_config.EnemyIntentValue})");
         
         var diceRoller = new DiceRoller
         {
@@ -459,7 +376,6 @@ public partial class TrainingGroundController : Node
 
         var enemy = TrainingEnemyFactory.CreateEnemy(_config.EnemyType, _config);
         _battleManager.InitializeBattle(player, enemy, diceRoller);
-        UpdatePileCounts();
     }
     
     private void ParseConfig()
@@ -506,7 +422,7 @@ public partial class TrainingGroundController : Node
         var wound = new CardInstance(CardData.Wound);
         _battleManager.Player.Hand.Add(wound);
         _battleUI.UpdateUI();
-        _battleLogPanel.AddLog("塞入临时诅咒: Wound");
+        _battleLogPanel.AddLog("Added temporary curse: Wound");
     }
 
     private void SetMouseFilterRecursive(Control control, Control.MouseFilterEnum mouseFilter)

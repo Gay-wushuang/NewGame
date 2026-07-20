@@ -33,27 +33,30 @@ public static class CardDisplayFormatter
 
     public static string FormatCardStatLine(CardData data, CardInstance card, bool contextual)
     {
+        return FormatCardStatLine(data, card, 6, null, contextual);
+    }
+
+    public static string FormatCardStatLine(CardData data, CardInstance card, int diceSides)
+    {
+        return FormatCardStatLine(data, card, diceSides, null, false);
+    }
+
+    public static string FormatCardStatLine(CardData data, CardInstance card, int diceSides, EnemyState enemy, bool contextual)
+    {
         if (data.DamageFormula != null)
         {
-            int minDamage, maxDamage;
-            data.GetDamageRange(contextual ? 6 : 6, out minDamage, out maxDamage);
+            GetDamageRange(data, diceSides, enemy, contextual, out int minDamage, out int maxDamage);
             return minDamage == maxDamage ? $"DMG {minDamage}" : $"DMG {minDamage}~{maxDamage}";
         }
 
         if (data.Subtype == CardSubtype.Defense && data.ShieldValue > 0)
-        {
             return $"Shield {data.ShieldValue}";
-        }
 
         if (data.Subtype == CardSubtype.Curse)
-        {
             return card.CurseStacks > 1 ? $"Stacks {card.CurseStacks}" : "Curse";
-        }
 
         if (data.EffectAmount > 0)
-        {
             return $"Effect {data.EffectAmount}";
-        }
 
         return "Effect";
     }
@@ -61,199 +64,222 @@ public static class CardDisplayFormatter
     public static string FormatCost(CardData data)
     {
         var costs = new List<string>();
-        
+
         if (data.EnergyCost > 0)
-        {
             costs.Add($"{data.EnergyCost} Energy");
-        }
-        
+
         if (data.DiceCost > 0)
+            costs.Add($"{data.DiceCost} Dice");
+
+        return costs.Count == 0 ? "No cost" : string.Join(", ", costs);
+    }
+
+    public static string FormatCardFaceRuleText(CardInstance card, int diceSides, EnemyState enemy, bool contextual)
+    {
+        var parts = new List<string>();
+        CardData data = card.Data;
+
+        if (data.DamageFormula != null)
         {
-            costs.Add($"{data.DiceCost} 枚骰子");
+            GetDamageRange(data, diceSides, enemy, contextual, out int minDamage, out int maxDamage);
+            string label = contextual ? "Current damage" : "Base damage";
+            parts.Add(minDamage == maxDamage ? $"{label}: {minDamage}" : $"{label}: {minDamage}~{maxDamage}");
         }
-        
-        if (costs.Count == 0)
+
+        string condition = FormatConditionalEffect(data);
+        if (!string.IsNullOrEmpty(condition))
+            parts.Add(condition);
+
+        if (data.Subtype == CardSubtype.Defense && data.ShieldValue > 0)
+            parts.Add($"Shield: {data.ShieldValue}");
+
+        if (data.Subtype == CardSubtype.Curse)
+            parts.Add(FormatRuleText(data, card, diceSides));
+
+        return parts.Count > 0 ? string.Join("\n", parts) : "Effect";
+    }
+
+    public static string FormatPreviewRuleText(CardInstance card, int diceSides, EnemyState enemy)
+    {
+        var parts = new List<string>();
+        CardData data = card.Data;
+
+        if (data.DamageFormula != null)
         {
-            return "无消耗";
+            GetDamageRange(data, diceSides, null, false, out int baseMin, out int baseMax);
+            GetDamageRange(data, diceSides, enemy, true, out int currentMin, out int currentMax);
+
+            parts.Add(baseMin == baseMax ? $"Base damage: {baseMin}" : $"Base damage: {baseMin}~{baseMax}");
+            if (currentMin != baseMin || currentMax != baseMax)
+            {
+                parts.Add(currentMin == currentMax
+                    ? $"Current estimate: {currentMin}"
+                    : $"Current estimate: {currentMin}~{currentMax}");
+            }
         }
-        
-        return string.Join("、", costs);
+
+        string condition = FormatConditionalEffect(data);
+        if (!string.IsNullOrEmpty(condition))
+            parts.Add(condition);
+
+        string ruleText = FormatRuleText(data, card, diceSides);
+        if (parts.Count == 0 && !string.IsNullOrEmpty(ruleText))
+            parts.Add(ruleText);
+
+        return parts.Count > 0 ? string.Join("\n", parts) : "No extra effect.";
     }
 
     public static string FormatRuleText(CardData data, CardInstance card, int diceSides)
     {
         var parts = new List<string>();
-        
+
         if (data.DamageFormula != null)
-        {
             parts.Add(FormatDamageEffect(data, diceSides));
-        }
-        
+
         if (data.Subtype == CardSubtype.Defense && data.ShieldValue > 0)
-        {
-            parts.Add($"获得 {data.ShieldValue} 点护盾。");
-        }
-        
+            parts.Add($"Gain {data.ShieldValue} shield.");
+
         if (data.Subtype == CardSubtype.PositiveBuff && data.AppliedBuffType.HasValue)
-        {
             parts.Add(FormatBuffEffect(data));
-        }
-        
+
         if (data.Subtype == CardSubtype.NegativeBuff && data.AppliedDebuffType.HasValue)
-        {
             parts.Add(FormatDebuffEffect(data));
-        }
-        
+
         if (data.Subtype == CardSubtype.BattleLevelConsumable)
-        {
             parts.Add(FormatBattleConsumableEffect(data));
-        }
-        
+
         if (data.Subtype == CardSubtype.GameLevelConsumable)
-        {
             parts.Add(FormatGameConsumableEffect(data));
-        }
-        
+
         if (data.Subtype == CardSubtype.Equipment && data.EquipSlot.HasValue)
-        {
             parts.Add(FormatEquipmentEffect(data));
-        }
-        
+
         if (data.Subtype == CardSubtype.Curse)
-        {
             parts.Add(FormatCurseEffect(data, card));
-        }
-        
-        if (data.AppliedDebuffType.HasValue && data.Subtype != CardSubtype.NegativeBuff && data.Subtype != CardSubtype.Curse)
+
+        if (data.AppliedDebuffType.HasValue &&
+            data.Subtype != CardSubtype.NegativeBuff &&
+            data.Subtype != CardSubtype.Curse)
         {
-            parts.Add(FormatConditionalDebuff(data));
+            parts.Add(FormatConditionalEffect(data));
         }
-        
+
         return string.Join("\n", parts);
     }
 
     public static string FormatKeywordText(CardData data)
     {
         var parts = new List<string>();
-        
+
         if (data.ShieldValue > 0 || data.Subtype == CardSubtype.Defense)
-        {
-            parts.Add("护盾：受到攻击时优先于 Energy 承受伤害。\n未消耗的护盾在下一玩家回合开始时消散。");
-        }
-        
-        if (data.AppliedDebuffType == DebuffType.Vulnerable || 
-            (data.AppliedDebuffType.HasValue && data.AppliedDebuffType.Value == DebuffType.Vulnerable))
-        {
-            parts.Add("破甲：每层使敌人受到的攻击伤害增加 1。\n敌人回合结束时减少 1 层。");
-        }
-        
+            parts.Add("Shield: absorbs damage before Energy. Remaining shield clears at the start of the next player turn.");
+
+        if (data.AppliedDebuffType == DebuffType.Vulnerable)
+            parts.Add("Vulnerable: each stack increases attack damage taken by 1. Enemy loses 1 stack at end of its turn.");
+
         if (data.AppliedDebuffType == DebuffType.Weak)
-        {
-            parts.Add("Weak：敌人攻击伤害减少对应层数，持续 2 回合。");
-        }
-        
+            parts.Add("Weak: reduces enemy attack damage by its stack count.");
+
         if (data.AppliedBuffType == BuffType.EnergyRegen)
-        {
-            parts.Add("能量回复：下回合开始额外恢复对应数量的 Energy。");
-        }
-        
+            parts.Add("Energy Regen: restores extra Energy at the start of the next turn.");
+
         if (data.Subtype == CardSubtype.BattleLevelConsumable)
-        {
-            parts.Add($"消耗品：每场战斗限用 {data.UsesPerBattle} 次，使用后进入消耗堆。");
-        }
-        
+            parts.Add($"Consumable: usable {data.UsesPerBattle} time(s) per battle.");
+
         if (data.Subtype == CardSubtype.GameLevelConsumable)
-        {
-            parts.Add("消耗品：全局可用，使用后进入消耗堆。");
-        }
-        
+            parts.Add("Consumable: exhausted after use.");
+
         if (data.Subtype == CardSubtype.Equipment)
-        {
-            parts.Add("装备：装备后持续生效，持续对应场次后移除。");
-        }
-        
+            parts.Add("Equipment: grants a lasting bonus for its configured duration.");
+
         if (data.Subtype == CardSubtype.Curse)
         {
-            string duration = data.CurseDuration == CurseDurationType.Temporary ? "临时" : "永久";
-            parts.Add($"诅咒（{duration}）：打出后有 {data.CurseDisappearChance * 100}% 概率消失，{data.CurseStrengthenChance * 100}% 概率强化，其余概率无事发生。");
+            string duration = data.CurseDuration == CurseDurationType.Temporary ? "temporary" : "permanent";
+            parts.Add($"Curse ({duration}): may disappear, strengthen, or stay after being played.");
         }
-        
+
         return parts.Count > 0 ? string.Join("\n\n", parts) : "";
+    }
+
+    public static string FormatConditionalEffect(CardData data)
+    {
+        if (data.ConditionalDiceThreshold <= 0)
+            return "";
+
+        string effect = string.IsNullOrEmpty(data.ConditionalEffectSummary)
+            ? "Trigger extra effect"
+            : data.ConditionalEffectSummary;
+        return $"Dice {data.ConditionalDiceThreshold}+: {effect}.";
+    }
+
+    private static void GetDamageRange(CardData data, int diceSides, EnemyState enemy, bool contextual, out int minDamage, out int maxDamage)
+    {
+        data.GetDamageRange(diceSides, out minDamage, out maxDamage);
+
+        if (!contextual || data.DamageFormula == null || enemy == null || data.Subtype != CardSubtype.Attack)
+            return;
+
+        int vulnerable = enemy.GetVulnerableStacks();
+        if (vulnerable <= 0)
+            return;
+
+        minDamage += vulnerable;
+        maxDamage += vulnerable;
     }
 
     private static string FormatDamageEffect(CardData data, int diceSides)
     {
-        int minDamage, maxDamage;
-        data.GetDamageRange(diceSides, out minDamage, out maxDamage);
-        
-        if (data.DiceCost == 0)
-        {
-            return $"造成 {minDamage} 点伤害。";
-        }
-        
-        if (minDamage == maxDamage)
-        {
-            return $"造成 {minDamage} 点伤害。";
-        }
-        
-        return $"造成“骰点 + {minDamage - 1}”的伤害。\n使用 d{diceSides} 时，伤害范围为 {minDamage}～{maxDamage}。";
+        data.GetDamageRange(diceSides, out int minDamage, out int maxDamage);
+
+        if (data.DiceCost == 0 || minDamage == maxDamage)
+            return $"Deal {minDamage} damage.";
+
+        return $"Deal die + {minDamage - 1} damage. With d{diceSides}: {minDamage}~{maxDamage}.";
     }
 
     private static string FormatBuffEffect(CardData data)
     {
-        string buffName = GetBuffName(data.AppliedBuffType.Value);
-        string duration = data.Duration > 0 ? $"，持续 {data.Duration} 回合" : "";
-        return $"获得 {buffName}（{data.EffectAmount}）{duration}。";
+        string duration = data.Duration > 0 ? $" for {data.Duration} turn(s)" : "";
+        return $"Gain {GetBuffName(data.AppliedBuffType.Value)} {data.EffectAmount}{duration}.";
     }
 
     private static string FormatDebuffEffect(CardData data)
     {
-        string debuffName = GetDebuffName(data.AppliedDebuffType.Value);
-        string duration = data.Duration > 0 ? $"，持续 {data.Duration} 回合" : "";
-        return $"施加 {data.EffectAmount} 层 {debuffName}{duration}。";
-    }
-
-    private static string FormatConditionalDebuff(CardData data)
-    {
-        if (data.AppliedDebuffType != DebuffType.Vulnerable)
-            return "";
-            
-        return $"如果骰点不低于 {data.EffectAmount + 3}，施加 {data.EffectAmount} 层破甲。";
+        string duration = data.Duration > 0 ? $" for {data.Duration} turn(s)" : "";
+        return $"Apply {data.EffectAmount} {GetDebuffName(data.AppliedDebuffType.Value)}{duration}.";
     }
 
     private static string FormatBattleConsumableEffect(CardData data)
     {
-        return $"恢复 {data.EffectAmount} Energy。\n每场战斗可以使用 {data.UsesPerBattle} 次。";
+        return $"Restore {data.EffectAmount} Energy. Uses per battle: {data.UsesPerBattle}.";
     }
 
     private static string FormatGameConsumableEffect(CardData data)
     {
-        return $"恢复 {data.EffectAmount} HP。";
+        return $"Restore {data.EffectAmount} HP.";
     }
 
     private static string FormatEquipmentEffect(CardData data)
     {
-        string slotName = GetEquipmentSlotName(data.EquipSlot.Value);
-        return $"装备 {slotName}，攻击伤害 +{data.EffectAmount}。\n持续 {data.Duration} 场战斗。";
+        return $"Equip {GetEquipmentSlotName(data.EquipSlot.Value)}. Attack damage +{data.EffectAmount} for {data.Duration} battle(s).";
     }
 
     private static string FormatCurseEffect(CardData data, CardInstance card)
     {
-        string triggerName = GetCurseTriggerName(data.CurseTrigger);
-        string stacks = card.CurseStacks > 1 ? $"（{card.CurseStacks} 层）" : "";
-        
+        string stacks = card.CurseStacks > 1 ? $" ({card.CurseStacks} stacks)" : "";
+
         switch (data.CurseTrigger)
         {
             case CurseTriggerType.SelfDamage:
-                return $"每回合失去 {data.CurseEffectAmount} HP{stacks}。";
+                return $"Lose {data.CurseEffectAmount} HP each turn{stacks}.";
             case CurseTriggerType.HandSizeReduction:
-                return $"手牌上限 -1{stacks}。";
+                return $"Hand size -{data.CurseEffectAmount}{stacks}.";
             case CurseTriggerType.DrawReduction:
-                return $"每回合少抽 {data.CurseEffectAmount} 张牌{stacks}。";
+                return $"Draw {data.CurseEffectAmount} fewer card(s) each turn{stacks}.";
             case CurseTriggerType.EnergyDrain:
-                return $"每回合失去 {data.CurseEffectAmount} Energy{stacks}。";
+                return $"Lose {data.CurseEffectAmount} Energy each turn{stacks}.";
             default:
-                return $"触发 {triggerName} 效果{stacks}。";
+                return $"Trigger {data.CurseTrigger}{stacks}.";
         }
     }
 
@@ -261,12 +287,18 @@ public static class CardDisplayFormatter
     {
         switch (buffType)
         {
-            case BuffType.AttackUp: return "攻击力提升";
-            case BuffType.DefenseUp: return "防御力提升";
-            case BuffType.EnergyRegen: return "能量回复";
-            case BuffType.DiceBonus: return "骰子加成";
-            case BuffType.CriticalRateUp: return "暴击率提升";
-            default: return buffType.ToString();
+            case BuffType.AttackUp:
+                return "Attack Up";
+            case BuffType.DefenseUp:
+                return "Defense Up";
+            case BuffType.EnergyRegen:
+                return "Energy Regen";
+            case BuffType.DiceBonus:
+                return "Dice Bonus";
+            case BuffType.CriticalRateUp:
+                return "Critical Rate Up";
+            default:
+                return buffType.ToString();
         }
     }
 
@@ -274,12 +306,18 @@ public static class CardDisplayFormatter
     {
         switch (debuffType)
         {
-            case DebuffType.Vulnerable: return "破甲";
-            case DebuffType.Weak: return "Weak";
-            case DebuffType.Slow: return "减速";
-            case DebuffType.ArmorBreak: return "护甲破坏";
-            case DebuffType.EnergyDrain: return "能量流失";
-            default: return debuffType.ToString();
+            case DebuffType.Vulnerable:
+                return "Vulnerable";
+            case DebuffType.Weak:
+                return "Weak";
+            case DebuffType.Slow:
+                return "Slow";
+            case DebuffType.ArmorBreak:
+                return "Armor Break";
+            case DebuffType.EnergyDrain:
+                return "Energy Drain";
+            default:
+                return debuffType.ToString();
         }
     }
 
@@ -287,22 +325,14 @@ public static class CardDisplayFormatter
     {
         switch (slot)
         {
-            case EquipmentSlot.Weapon: return "武器";
-            case EquipmentSlot.Armor: return "护甲";
-            case EquipmentSlot.Accessory: return "饰品";
-            default: return slot.ToString();
-        }
-    }
-
-    private static string GetCurseTriggerName(CurseTriggerType trigger)
-    {
-        switch (trigger)
-        {
-            case CurseTriggerType.SelfDamage: return "自伤";
-            case CurseTriggerType.HandSizeReduction: return "手牌上限减少";
-            case CurseTriggerType.DrawReduction: return "抽牌惩罚";
-            case CurseTriggerType.EnergyDrain: return "能量流失";
-            default: return trigger.ToString();
+            case EquipmentSlot.Weapon:
+                return "Weapon";
+            case EquipmentSlot.Armor:
+                return "Armor";
+            case EquipmentSlot.Accessory:
+                return "Accessory";
+            default:
+                return slot.ToString();
         }
     }
 }

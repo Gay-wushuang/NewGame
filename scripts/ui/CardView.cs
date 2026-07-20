@@ -104,7 +104,7 @@ public partial class CardView : Control
         if (formatStatLine != null)
             _statLine = formatStatLine(data, instance);
         else
-            _statLine = CardDisplayFormatter.FormatCardStatLine(data, instance, showContext);
+            _statLine = CardDisplayFormatter.FormatCardStatLine(data, instance, diceSides);
         
         _energyCostText = data.EnergyCost.ToString();
         _diceCostText = data.DiceCost.ToString();
@@ -153,9 +153,9 @@ public partial class CardView : Control
         SetLabel("Canvas/FrontFace/TopBar/EnergyBadge/EnergyValueLabel", EnergyCostText);
         SetLabel("Canvas/FrontFace/TopBar/DiceBadge/DiceValueLabel", DiceCostText);
         SetLabel("Canvas/FrontFace/ArtFrame/ArtNoteLabel", ArtNote);
-        SetLabel("Canvas/FrontFace/StatsBar/StatsLabel", $"{CardType} · {StatLine}");
+        SetLabel("Canvas/FrontFace/StatsBar/StatsLabel", $"{CardType} - {StatLine}");
         SetLabel("Canvas/FrontFace/TextBox/RulesLabel", RulesText);
-        SetLabel("Canvas/BackFace/CoreLabel", $"◆\n{BackCoreText}\n◆");
+        SetLabel("Canvas/BackFace/CoreLabel", $"*\n{BackCoreText}\n*");
         SetLabel("Canvas/BackFace/BackNoteLabel", BackNoteText);
     }
 

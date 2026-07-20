@@ -95,7 +95,7 @@ public class EnemyState
     
     public int TakeDamage(int damage)
     {
-        int finalDamage = CalculateDamage(damage);
+        int finalDamage = CalculateDamage(Mathf.Max(0, damage));
         
         if (Shield > 0)
         {
@@ -104,7 +104,7 @@ public class EnemyState
             finalDamage -= shieldDamage;
         }
         
-        Hp -= finalDamage;
+        Hp = Mathf.Max(0, Hp - finalDamage);
         
         return finalDamage;
     }
@@ -125,7 +125,7 @@ public class EnemyState
             }
             else if (pair.Key == StatusType.Vulnerable)
             {
-                ReduceStatus(pair.Key, 1);
+                pair.Value.Stacks = Mathf.Max(0, pair.Value.Stacks - 1);
                 if (pair.Value.Stacks <= 0)
                 {
                     expiredStatuses.Add(pair.Key);
@@ -167,41 +167,41 @@ public class EnemyIntent
     {
         Type = IntentType.None;
         Value = 0;
-        Description = "不行动";
+        Description = "None";
     }
     
     public void SetNone()
     {
         Type = IntentType.None;
         Value = 0;
-        Description = "不行动";
+        Description = "None";
     }
     
     public void SetAttack(int damage)
     {
         Type = IntentType.Attack;
         Value = damage;
-        Description = $"攻击 {Value}";
+        Description = $"Attack {Value}";
     }
     
     public void SetDefend(int shield)
     {
         Type = IntentType.Defend;
         Value = shield;
-        Description = $"防御 {shield}";
+        Description = $"Defend {shield}";
     }
     
     public void SetBuff(int value)
     {
         Type = IntentType.Buff;
         Value = value;
-        Description = $"增益 {value}";
+        Description = $"Buff {value}";
     }
     
     public void SetDebuff(int value)
     {
         Type = IntentType.Debuff;
         Value = value;
-        Description = $"减益 {value}";
+        Description = $"Debuff {value}";
     }
 }
