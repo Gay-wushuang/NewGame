@@ -110,10 +110,12 @@ public partial class CardPileBrowser : Control
 	{
 		_previewingCard = card;
 		
-		_miniCostLabel.Text = $"消耗：{CardDisplayFormatter.FormatCost(card.Data)}";
-		_miniRuleLabel.Text = CardDisplayFormatter.FormatRuleText(card.Data, card, _player.DiceSides);
+		string diceText = card.Data.DiceCost > 0 ? card.Data.DiceCost.ToString() : "无需";
+		_miniCostLabel.Text = $"Energy: {card.Data.EnergyCost}  Dice: {diceText}";
 		
-		string keywordText = CardDisplayFormatter.FormatKeywordText(card.Data);
+		_miniRuleLabel.Text = card.Data.Description;
+		
+		string keywordText = card.Data.EffectExplanation;
 		_miniKeywordLabel.Visible = !string.IsNullOrEmpty(keywordText);
 		_miniKeywordLabel.Text = keywordText;
 	}
