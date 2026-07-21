@@ -29,7 +29,7 @@ anchor_right = 0.5
 offset_left = -40.0
 offset_right = 40.0
 offset_bottom = 30.0
-text = "回合 1"
+text = "Turn 1"
 horizontal_alignment = 1
 
 [node name="PlayerStatus" type="VBoxContainer" parent="TopPanel"]
@@ -52,7 +52,7 @@ text = "Energy: 30/30"
 [node name="PlayerShieldLabel" type="Label" parent="TopPanel/PlayerStatus"]
 visible = false
 layout_mode = 2
-text = "护盾: 0"
+text = "Shield: 0"
 
 [node name="EnemyStatus" type="VBoxContainer" parent="TopPanel"]
 layout_mode = 1
@@ -69,12 +69,12 @@ text = "HP: 20/20"
 
 [node name="EnemyIntentLabel" type="Label" parent="TopPanel/EnemyStatus"]
 layout_mode = 2
-text = "意图: 攻击 14"
+text = "Intent: Attack 14"
 
 [node name="EnemyVulnerableLabel" type="Label" parent="TopPanel/EnemyStatus"]
 visible = false
 layout_mode = 2
-text = "破甲: 0"
+text = "Vulnerable: 0"
 
 [node name="EnemyArea" type="Panel" parent="."]
 layout_mode = 1
@@ -101,9 +101,9 @@ anchors_preset = -1
 anchor_left = 0.5
 anchor_right = 0.5
 offset_left = -70.0
-offset_top = 392.0
+offset_top = 360.0
 offset_right = 70.0
-offset_bottom = 492.0
+offset_bottom = 460.0
 clip_contents = true
 
 [node name="DiceLabel" type="Label" parent="DicePanel"]
@@ -112,7 +112,7 @@ anchors_preset = -1
 anchor_right = 1.0
 offset_top = 5.0
 offset_bottom = 25.0
-text = "骰子"
+text = "Dice"
 horizontal_alignment = 1
 
 [node name="DiceContainer" type="HBoxContainer" parent="DicePanel"]
@@ -131,9 +131,9 @@ anchors_preset = 12
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 10.0
-offset_top = -250.0
-offset_right = -10.0
+offset_left = 104.0
+offset_top = -270.0
+offset_right = -188.0
 offset_bottom = -10.0
 
 [node name="CardLabel" type="Label" parent="CardPanel"]
@@ -142,10 +142,10 @@ anchors_preset = -1
 anchor_right = 1.0
 offset_top = 5.0
 offset_bottom = 25.0
-text = "手牌"
+text = "Hand"
 horizontal_alignment = 2
 
-[node name="CardContainer" type="HBoxContainer" parent="CardPanel"]
+[node name="CardContainer" type="Control" parent="CardPanel"]
 layout_mode = 1
 anchors_preset = -1
 anchor_right = 1.0
@@ -162,12 +162,12 @@ anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = 10.0
-offset_top = -140.0
+offset_top = -126.0
 offset_right = -10.0
 offset_bottom = -10.0
 
 [node name="DrawPilePanel" type="PanelContainer" parent="PileBar"]
-custom_minimum_size = Vector2(80, 110)
+custom_minimum_size = Vector2(86, 110)
 layout_mode = 1
 mouse_filter = 0
 
@@ -209,7 +209,7 @@ layout_mode = 2
 size_flags_horizontal = 3
 
 [node name="DiscardPilePanel" type="PanelContainer" parent="PileBar"]
-custom_minimum_size = Vector2(80, 110)
+custom_minimum_size = Vector2(86, 110)
 layout_mode = 1
 mouse_filter = 0
 
@@ -247,7 +247,7 @@ horizontal_alignment = 1
 mouse_filter = 2
 
 [node name="ExhaustPilePanel" type="PanelContainer" parent="PileBar"]
-custom_minimum_size = Vector2(80, 110)
+custom_minimum_size = Vector2(86, 110)
 layout_mode = 1
 mouse_filter = 0
 
@@ -291,10 +291,10 @@ anchors_preset = -1
 anchor_left = 1.0
 anchor_right = 1.0
 offset_left = -130.0
-offset_top = 398.0
+offset_top = 388.0
 offset_right = -20.0
-offset_bottom = 438.0
-text = "结束回合"
+offset_bottom = 428.0
+text = "End Turn"
 
 [node name="BattleResultLabel" type="Label" parent="."]
 visible = false
@@ -327,13 +327,13 @@ size_flags_vertical = 3
 [node name="PreviewNameLabel" type="Label" parent="CardPreviewPanel/PreviewVBox"]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "卡牌名称"
+text = "Card Name"
 autowrap_mode = 1
 
 [node name="PreviewSummaryLabel" type="Label" parent="CardPreviewPanel/PreviewVBox"]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "类型 · 当前摘要"
+text = "Type - Current summary"
 autowrap_mode = 1
 
 [node name="PreviewRuleLabel" type="Label" parent="CardPreviewPanel/PreviewVBox"]
@@ -350,3 +350,4 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 text = ""
 autowrap_mode = 1
+

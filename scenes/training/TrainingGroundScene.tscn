@@ -1,9 +1,14 @@
-﻿[gd_scene format=3 uid="uid://b64vqk0vruvl1"]
+[gd_scene format=3 uid="uid://b64vqk0vruvl1"]
 
 [ext_resource type="Script" uid="uid://bjjvwfr0bag1l" path="res://scripts/battle/BattleManager.cs" id="1"]
 [ext_resource type="Script" uid="uid://cpt20bik108gd" path="res://scripts/training/TrainingGroundController.cs" id="2"]
 [ext_resource type="Script" uid="uid://b2w63snnnr5cl" path="res://scripts/ui/BattleLogPanel.cs" id="3"]
 [ext_resource type="PackedScene" path="res://scenes/ui/BattleUI.tscn" id="4"]
+[ext_resource type="Texture2D" path="res://assets/art/backgrounds/training/training_lab_bg_v001.png" id="5"]
+[ext_resource type="Texture2D" path="res://assets/art/sprites/player/echo_idle_v001.png" id="6"]
+[ext_resource type="Texture2D" path="res://assets/art/sprites/enemies/training_beast_idle_v001.png" id="7"]
+[ext_resource type="Texture2D" path="res://assets/art/backgrounds/training/training_lab_bg_playergd_v001.png" id="8"]
+[ext_resource type="Texture2D" path="res://assets/art/backgrounds/training/training_lab_bg_enemiesgd_v001.png" id="9"]
 
 [node name="TrainingGroundScene" type="Control" unique_id=1]
 layout_mode = 3
@@ -17,7 +22,44 @@ script = ExtResource("2")
 [node name="BattleManager" type="Node" parent="." unique_id=2]
 script = ExtResource("1")
 
+[node name="BackgroundLayer" type="Node2D" parent="."]
+
+[node name="TrainingLabBackground" type="Sprite2D" parent="BackgroundLayer"]
+texture_filter = 1
+position = Vector2(640, 360)
+scale = Vector2(4, 4)
+texture = ExtResource("5")
+
+[node name="GroundLayer" type="Node2D" parent="."]
+
+[node name="PlayerGround" type="Sprite2D" parent="GroundLayer"]
+texture_filter = 1
+position = Vector2(640, 220)
+scale = Vector2(4, 4)
+texture = ExtResource("8")
+
+[node name="EnemyGround" type="Sprite2D" parent="GroundLayer"]
+texture_filter = 1
+position = Vector2(640, 220)
+scale = Vector2(4, 4)
+texture = ExtResource("9")
+
+[node name="ActorLayer" type="Node2D" parent="."]
+
+[node name="EchoSprite" type="Sprite2D" parent="ActorLayer"]
+texture_filter = 1
+position = Vector2(158, 327)
+texture = ExtResource("6")
+
+[node name="TrainingBeastSprite" type="Sprite2D" parent="ActorLayer"]
+texture_filter = 1
+position = Vector2(1118, 327)
+texture = ExtResource("7")
+
 [node name="BattleUI" parent="." unique_id=1140299852 instance=ExtResource("4")]
+
+[node name="EnemyArea" parent="BattleUI" index="2"]
+visible = false
 
 [node name="OverlayLayer" type="CanvasLayer" parent="." unique_id=84]
 layer = 10
@@ -309,16 +351,16 @@ text = "Deck"
 
 [node name="DeckFloatingPanel" type="PanelContainer" parent="OverlayLayer" unique_id=98]
 visible = false
-custom_minimum_size = Vector2(600, 450)
+custom_minimum_size = Vector2(1040, 600)
 anchors_preset = -1
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -300.0
-offset_top = -225.0
-offset_right = 300.0
-offset_bottom = 225.0
+offset_left = -520.0
+offset_top = -300.0
+offset_right = 520.0
+offset_bottom = 300.0
 
 [node name="DeckVBox" type="VBoxContainer" parent="OverlayLayer/DeckFloatingPanel" unique_id=99]
 layout_mode = 2
@@ -331,35 +373,42 @@ layout_mode = 2
 text = "Deck (0)"
 horizontal_alignment = 1
 
-[node name="DeckCardScroll" type="ScrollContainer" parent="OverlayLayer/DeckFloatingPanel/DeckVBox" unique_id=101]
+[node name="DeckContentHBox" type="HBoxContainer" parent="OverlayLayer/DeckFloatingPanel/DeckVBox"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="DeckCardList" type="VBoxContainer" parent="OverlayLayer/DeckFloatingPanel/DeckVBox/DeckCardScroll" unique_id=102]
+[node name="DeckCardScroll" type="ScrollContainer" parent="OverlayLayer/DeckFloatingPanel/DeckVBox/DeckContentHBox" unique_id=101]
 layout_mode = 2
 size_flags_horizontal = 3
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
 
-[node name="MiniPreviewPanel" type="PanelContainer" parent="OverlayLayer/DeckFloatingPanel/DeckVBox" unique_id=103]
-custom_minimum_size = Vector2(0, 120)
+[node name="DeckCardList" type="GridContainer" parent="OverlayLayer/DeckFloatingPanel/DeckVBox/DeckContentHBox/DeckCardScroll" unique_id=102]
+layout_mode = 2
+size_flags_horizontal = 3
+columns = 4
+
+[node name="MiniPreviewPanel" type="PanelContainer" parent="OverlayLayer/DeckFloatingPanel/DeckVBox/DeckContentHBox" unique_id=103]
+custom_minimum_size = Vector2(300, 0)
 layout_mode = 2
 
-[node name="MiniPreviewVBox" type="VBoxContainer" parent="OverlayLayer/DeckFloatingPanel/DeckVBox/MiniPreviewPanel" unique_id=104]
+[node name="MiniPreviewVBox" type="VBoxContainer" parent="OverlayLayer/DeckFloatingPanel/DeckVBox/DeckContentHBox/MiniPreviewPanel" unique_id=104]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="MiniCostLabel" type="Label" parent="OverlayLayer/DeckFloatingPanel/DeckVBox/MiniPreviewPanel/MiniPreviewVBox" unique_id=105]
+[node name="MiniCostLabel" type="Label" parent="OverlayLayer/DeckFloatingPanel/DeckVBox/DeckContentHBox/MiniPreviewPanel/MiniPreviewVBox" unique_id=105]
 layout_mode = 2
 text = "Energy: 0  Dice: none"
 
-[node name="MiniRuleLabel" type="Label" parent="OverlayLayer/DeckFloatingPanel/DeckVBox/MiniPreviewPanel/MiniPreviewVBox" unique_id=106]
+[node name="MiniRuleLabel" type="Label" parent="OverlayLayer/DeckFloatingPanel/DeckVBox/DeckContentHBox/MiniPreviewPanel/MiniPreviewVBox" unique_id=106]
 layout_mode = 2
 size_flags_vertical = 3
 text = ""
 autowrap_mode = 1
 
-[node name="MiniKeywordLabel" type="Label" parent="OverlayLayer/DeckFloatingPanel/DeckVBox/MiniPreviewPanel/MiniPreviewVBox" unique_id=107]
+[node name="MiniKeywordLabel" type="Label" parent="OverlayLayer/DeckFloatingPanel/DeckVBox/DeckContentHBox/MiniPreviewPanel/MiniPreviewVBox" unique_id=107]
 visible = false
 layout_mode = 2
 size_flags_vertical = 3

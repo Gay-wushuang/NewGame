@@ -3,6 +3,9 @@ using Godot;
 public partial class BattleUI : Control
 {
     private const float HandCardScale = 0.78125f;
+    private const float HandNormalStep = 158.0f;
+    private const float HandFocusedStep = 166.0f;
+    private const float HandMinimumStep = 48.0f;
     private static readonly Vector2 HandCardSize = new Vector2(150, 225);
 
     private Label _playerHpLabel;
@@ -19,7 +22,7 @@ public partial class BattleUI : Control
     private Label _previewRuleLabel;
     private Label _previewKeywordLabel;
     private HBoxContainer _diceContainer;
-    private HBoxContainer _cardContainer;
+    private Control _cardContainer;
     private Button _endTurnButton;
     private PackedScene _cardViewScene;
     private CardPileBrowser _cardPileBrowser;
@@ -58,7 +61,7 @@ public partial class BattleUI : Control
         _previewRuleLabel = GetNode<Label>("CardPreviewPanel/PreviewVBox/PreviewRuleLabel");
         _previewKeywordLabel = GetNode<Label>("CardPreviewPanel/PreviewVBox/PreviewKeywordLabel");
         _diceContainer = GetNode<HBoxContainer>("DicePanel/DiceContainer");
-        _cardContainer = GetNode<HBoxContainer>("CardPanel/CardContainer");
+        _cardContainer = GetNode<Control>("CardPanel/CardContainer");
         _endTurnButton = GetNode<Button>("EndTurnButton");
         _cardViewScene = GD.Load<PackedScene>("res://scenes/card/CardView.tscn");
 
@@ -265,17 +268,92 @@ public partial class BattleUI : Control
         if (_battleManager.Player == null)
             return;
 
+        float[] cardPositions = CalculateHandCardPositions(_battleManager.Player.Hand.Count);
+
         for (int cardIndex = 0; cardIndex < _battleManager.Player.Hand.Count; cardIndex++)
         {
             Control cardControl = CreateHandCardView(_battleManager.Player.Hand[cardIndex], cardIndex);
+            cardControl.Position = new Vector2(cardPositions[cardIndex], cardIndex == _previewingCardIndex ? -12.0f : 0.0f);
+            cardControl.ZIndex = cardIndex == _previewingCardIndex ? 100 : cardIndex;
             _cardContainer.AddChild(cardControl);
         }
+    }
+
+    private float[] CalculateHandCardPositions(int cardCount)
+    {
+        float[] positions = new float[cardCount];
+        if (cardCount == 0)
+            return positions;
+
+        float availableWidth = _cardContainer.Size.X > 1.0f ? _cardContainer.Size.X : 980.0f;
+        if (cardCount == 1)
+        {
+            positions[0] = Mathf.Max(0.0f, (availableWidth - HandCardSize.X) * 0.5f);
+            return positions;
+        }
+
+        int gapCount = cardCount - 1;
+        float[] steps = new float[gapCount];
+
+        if (_previewingCardIndex < 0)
+        {
+            float step = Mathf.Clamp((availableWidth - HandCardSize.X) / gapCount, HandMinimumStep, HandNormalStep);
+            for (int i = 0; i < gapCount; i++)
+                steps[i] = step;
+        }
+        else
+        {
+            bool[] focusedGaps = new bool[gapCount];
+            if (_previewingCardIndex - 1 >= 0)
+                focusedGaps[_previewingCardIndex - 1] = true;
+            if (_previewingCardIndex < gapCount)
+                focusedGaps[_previewingCardIndex] = true;
+
+            int focusedGapCount = 0;
+            for (int i = 0; i < gapCount; i++)
+            {
+                if (focusedGaps[i])
+                    focusedGapCount++;
+            }
+
+            int collapsedGapCount = gapCount - focusedGapCount;
+            float focusedStep = HandFocusedStep;
+            float collapsedStep = collapsedGapCount > 0
+                ? (availableWidth - HandCardSize.X - focusedGapCount * focusedStep) / collapsedGapCount
+                : focusedStep;
+
+            if (collapsedStep < HandMinimumStep && focusedGapCount > 0)
+            {
+                collapsedStep = HandMinimumStep;
+                focusedStep = (availableWidth - HandCardSize.X - collapsedGapCount * collapsedStep) / focusedGapCount;
+                focusedStep = Mathf.Clamp(focusedStep, HandMinimumStep, HandFocusedStep);
+            }
+
+            collapsedStep = Mathf.Clamp(collapsedStep, HandMinimumStep, HandNormalStep);
+            for (int i = 0; i < gapCount; i++)
+                steps[i] = focusedGaps[i] ? focusedStep : collapsedStep;
+        }
+
+        float totalWidth = HandCardSize.X;
+        for (int i = 0; i < gapCount; i++)
+            totalWidth += steps[i];
+
+        float x = Mathf.Max(0.0f, (availableWidth - totalWidth) * 0.5f);
+        positions[0] = x;
+        for (int i = 1; i < cardCount; i++)
+        {
+            x += steps[i - 1];
+            positions[i] = x;
+        }
+
+        return positions;
     }
 
     private Control CreateHandCardView(CardInstance card, int cardIndex)
     {
         var wrapper = new Control();
         wrapper.CustomMinimumSize = HandCardSize;
+        wrapper.Size = HandCardSize;
         wrapper.SizeFlagsHorizontal = SizeFlags.ShrinkCenter;
         wrapper.SizeFlagsVertical = SizeFlags.ShrinkCenter;
         wrapper.GuiInput += (InputEvent @event) => OnCardGuiInput(@event, cardIndex);

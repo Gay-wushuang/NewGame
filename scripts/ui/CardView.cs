@@ -93,23 +93,23 @@ public partial class CardView : Control
         set { _backNoteText = value; UpdateViewDeferred(); }
     }
 
-    public void Setup(CardData data, CardInstance instance, int diceSides, bool showContext, 
+    public void Setup(CardData data, CardInstance instance, int diceSides, bool showContext,
         Func<CardData, CardInstance, string> formatStatLine = null,
         Func<CardInstance, string> formatRulesText = null)
     {
         _showBack = false;
         _cardName = CardDisplayFormatter.FormatName(data);
         _cardType = CardDisplayFormatter.FormatCardTypeLabel(data);
-        
+
         if (formatStatLine != null)
             _statLine = formatStatLine(data, instance);
         else
             _statLine = CardDisplayFormatter.FormatCardStatLine(data, instance, diceSides);
-        
+
         _energyCostText = data.EnergyCost.ToString();
         _diceCostText = data.DiceCost.ToString();
         _artNote = !string.IsNullOrEmpty(data.VisualKey) ? $"AI art slot\n{data.VisualKey}" : "AI art slot\n448 x 320";
-        
+
         if (formatRulesText != null)
             _rulesText = formatRulesText(instance);
         else

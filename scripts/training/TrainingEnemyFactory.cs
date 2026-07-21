@@ -3,7 +3,7 @@ public static class TrainingEnemyFactory
     public static EnemyState CreateEnemy(EnemyType type, TrainingConfig config)
     {
         EnemyState enemy;
-        
+
         switch (type)
         {
             case EnemyType.TrainingDummy:
@@ -21,10 +21,10 @@ public static class TrainingEnemyFactory
                 SetIntent(enemy, config.EnemyIntent, intentValue);
                 break;
         }
-        
+
         return enemy;
     }
-    
+
     private static void SetIntent(EnemyState enemy, EnemyIntentType intentType, int value)
     {
         switch (intentType)

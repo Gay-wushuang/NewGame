@@ -7,13 +7,13 @@ public class PlayerState
 
     public int MaxHp = 30;
     public int Hp = 30;
-    
+
     public int MaxEnergy = 12;
     public int Energy = 12;
-    
+
     public int DiceCount = 2;
     public int DiceSides = 6;
-    
+
     public List<CardInstance> Hand = new List<CardInstance>();
     public List<CardInstance> Deck = new List<CardInstance>();
     public List<CardInstance> DrawPile = new List<CardInstance>();
@@ -22,14 +22,14 @@ public class PlayerState
     public int MaxHandSizeBase = 10;
     public int CurseHandSizeModifier = 0;
     public int EffectiveMaxHandSize => Mathf.Max(1, MaxHandSizeBase + CurseHandSizeModifier);
-    
+
     public int Shield = 0;
     public int NextTurnEnergyBonus = 0;
     public int EquippedWeaponBonus = 0;
-    
+
     public List<DiceInstance> DicePool = new List<DiceInstance>();
     public DiceRoller DiceRoller;
-    
+
     public Dictionary<StatusType, StatusInstance> Statuses = new Dictionary<StatusType, StatusInstance>();
     public Dictionary<EquipmentSlot, CardData> Equipment = new Dictionary<EquipmentSlot, CardData>()
     {
@@ -37,33 +37,33 @@ public class PlayerState
         { EquipmentSlot.Armor, null },
         { EquipmentSlot.Accessory, null }
     };
-    
+
     public PlayerState(DiceRoller roller = null)
     {
         DiceRoller = roller ?? new DiceRoller();
     }
-    
+
     public int TakeDamage(int damage)
     {
         int totalDamage = Mathf.Max(0, damage);
-        
+
         int shieldDamage = Mathf.Min(totalDamage, Shield);
         Shield -= shieldDamage;
         totalDamage -= shieldDamage;
-        
+
         int energyDamage = Mathf.Min(totalDamage, Energy);
         Energy -= energyDamage;
         int hpDamage = totalDamage - energyDamage;
         Hp = Mathf.Max(0, Hp - hpDamage);
-        
+
         return shieldDamage;
     }
-    
+
     public void RestoreEnergy(int amount)
     {
         Energy = Mathf.Min(Energy + amount, MaxEnergy);
     }
-    
+
     public void RefreshDicePool()
     {
         DicePool.Clear();
@@ -72,22 +72,22 @@ public class PlayerState
             DicePool.Add(new DiceInstance(DiceSides));
         }
     }
-    
+
     public bool CanPlayCard(CardInstance card)
     {
         return Energy >= card.Data.EnergyCost && AvailableDiceCount() >= card.Data.DiceCost;
     }
-    
+
     public void ConsumeEnergy(int amount)
     {
         Energy = Mathf.Max(0, Energy - amount);
     }
-    
+
     public void PlayCard(CardInstance card)
     {
         Hand.Remove(card);
     }
-    
+
     public void InitDrawPileFromDeck()
     {
         DrawPile.Clear();
@@ -97,7 +97,7 @@ public class PlayerState
             DrawPile.Add(new CardInstance(card.Data));
         ShuffleDrawPile();
     }
-    
+
     public void ShuffleDrawPile()
     {
         for (int i = DrawPile.Count - 1; i > 0; i--)
@@ -106,7 +106,7 @@ public class PlayerState
             (DrawPile[i], DrawPile[j]) = (DrawPile[j], DrawPile[i]);
         }
     }
-    
+
     public void ShuffleDiscardIntoDraw()
     {
         foreach (var card in DiscardPile)
@@ -114,7 +114,7 @@ public class PlayerState
         DiscardPile.Clear();
         ShuffleDrawPile();
     }
-    
+
     public int DrawCards(int count)
     {
         int drawn = 0;
@@ -137,26 +137,26 @@ public class PlayerState
         }
         return drawn;
     }
-    
+
     public void DiscardHand()
     {
         foreach (var card in Hand)
             DiscardPile.Add(card);
         Hand.Clear();
     }
-    
+
     public void MoveToDiscard(CardInstance card)
     {
         Hand.Remove(card);
         DiscardPile.Add(card);
     }
-    
+
     public void MoveToExhaust(CardInstance card)
     {
         Hand.Remove(card);
         ExhaustPile.Add(card);
     }
-    
+
     public int AvailableDiceCount()
     {
         int count = 0;
@@ -167,7 +167,7 @@ public class PlayerState
         }
         return count;
     }
-    
+
     public DiceInstance ConsumeNextDice()
     {
         foreach (var dice in DicePool)
@@ -178,7 +178,7 @@ public class PlayerState
                 return dice;
             }
         }
-        
+
         return null;
     }
 
@@ -212,17 +212,17 @@ public class PlayerState
             dice.IsConsumed = false;
         }
     }
-    
+
     public bool IsAlive()
     {
         return Hp > 0;
     }
-    
+
     public int GetStatusStacks(StatusType type)
     {
         return Statuses.TryGetValue(type, out StatusInstance status) ? status.Stacks : 0;
     }
-    
+
     public void AddStatus(StatusType type, int stacks, int duration = 0)
     {
         if (!Statuses.ContainsKey(type))
@@ -238,7 +238,7 @@ public class PlayerState
             }
         }
     }
-    
+
     public void ReduceStatus(StatusType type, int stacks)
     {
         if (Statuses.ContainsKey(type))
@@ -250,37 +250,37 @@ public class PlayerState
             }
         }
     }
-    
+
     public int GetAttackUpStacks()
     {
         return GetStatusStacks(StatusType.AttackUp);
     }
-    
+
     public void AddAttackUp(int stacks)
     {
         AddStatus(StatusType.AttackUp, stacks, 2);
     }
-    
+
     public int GetDefenseUpStacks()
     {
         return GetStatusStacks(StatusType.DefenseUp);
     }
-    
+
     public void AddDefenseUp(int stacks)
     {
         AddStatus(StatusType.DefenseUp, stacks, 2);
     }
-    
+
     public int GetDiceBonus()
     {
         return GetStatusStacks(StatusType.DiceBonus);
     }
-    
+
     public void AddDiceBonus(int stacks)
     {
         AddStatus(StatusType.DiceBonus, stacks, 1);
     }
-    
+
     public void EquipCard(CardData card)
     {
         if (card.EquipSlot.HasValue)
@@ -288,16 +288,16 @@ public class PlayerState
             Equipment[card.EquipSlot.Value] = card;
         }
     }
-    
+
     public void UnequipSlot(EquipmentSlot slot)
     {
         Equipment[slot] = null;
     }
-    
+
     public void EndTurn()
     {
         List<StatusType> expiredStatuses = new List<StatusType>();
-        
+
         foreach (var pair in Statuses)
         {
             if (pair.Value.Duration > 0)
@@ -309,7 +309,7 @@ public class PlayerState
                 }
             }
         }
-        
+
         foreach (var statusType in expiredStatuses)
         {
             if (Statuses.ContainsKey(statusType) && Statuses[statusType].Duration <= 0)

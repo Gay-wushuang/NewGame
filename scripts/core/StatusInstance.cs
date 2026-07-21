@@ -17,7 +17,7 @@ public class StatusInstance
     public StatusType Type;
     public int Stacks;
     public int Duration;
-    
+
     public StatusInstance(StatusType type, int stacks, int duration = 0)
     {
         Type = type;

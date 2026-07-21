@@ -5,7 +5,7 @@ public class DiceInstance
     public bool IsRolled;
     public bool IsConsumed;
     public string Source;
-    
+
     public DiceInstance(int sides, string source = "Default")
     {
         Sides = sides;
@@ -14,7 +14,7 @@ public class DiceInstance
         IsRolled = false;
         IsConsumed = false;
     }
-    
+
     public int RollAndConsume(DiceRoller roller = null)
     {
         if (roller != null)

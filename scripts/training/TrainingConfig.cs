@@ -30,13 +30,13 @@ public class TrainingConfig
     public RollMode RollMode = RollMode.Random;
     public int FixedRollValue = 1;
     public EnemyType EnemyType = EnemyType.TrainingBeast;
-    
+
     public int EnemyHp = 20;
     public int EnemyAttack = 14;
     public int EnemyShield = 0;
     public EnemyIntentType EnemyIntent = EnemyIntentType.Attack;
     public int EnemyIntentValue = 14;
-    
+
     public void ClampValues()
     {
         PlayerHp = Mathf.Max(1, PlayerHp);
@@ -44,7 +44,7 @@ public class TrainingConfig
         DiceCount = Mathf.Clamp(DiceCount, 1, 6);
         DiceSides = Mathf.Clamp(DiceSides, 4, 20);
         FixedRollValue = Mathf.Clamp(FixedRollValue, 1, DiceSides);
-        
+
         EnemyHp = Mathf.Max(1, EnemyHp);
         EnemyAttack = Mathf.Max(0, EnemyAttack);
         EnemyShield = Mathf.Max(0, EnemyShield);

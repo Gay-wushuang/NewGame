@@ -92,11 +92,11 @@ public class CardData
     public Func<CardInstance, DiceInstance, int> DamageFormula;
     public Action<CardInstance, DiceInstance, EnemyState> ApplyEffect;
     public Func<CardInstance, DiceInstance, int, int> ModifyDamage;
-    
+
     public int ShieldValue;
     public float EvasionRate;
     public int CounterDamage;
-    
+
     public BuffType? AppliedBuffType;
     public DebuffType? AppliedDebuffType;
     public int EffectAmount;
@@ -106,17 +106,17 @@ public class CardData
     public float ResistChance;
     public int ConditionalDiceThreshold;
     public string ConditionalEffectSummary = "";
-    
+
     public int MaxUsage;
     public int UsesPerBattle;
-    
+
     public EquipmentSlot? EquipSlot;
     public bool IsPermanent;
-    
+
     public CurseType? AppliedCurseType;
     public string RemovalCondition;
     public bool IsRemovedOnDiscard;
-    
+
     public CurseDurationType CurseDuration = CurseDurationType.Permanent;
     public CurseTriggerType CurseTrigger = CurseTriggerType.SelfDamage;
     public int CurseEffectAmount = 1;
@@ -124,19 +124,19 @@ public class CardData
     public float CurseDisappearChance = 0.15f;
     public float CurseNothingChance = 0.70f;
     public float CurseStrengthenChance = 0.15f;
-    
+
     public string VisualKey;
     public string BorderColor;
-    
+
     public Dictionary<string, string> MetaData = new Dictionary<string, string>();
-    
+
     public void ValidateCurseChances()
     {
         float total = CurseDisappearChance + CurseNothingChance + CurseStrengthenChance;
         if (Mathf.Abs(total - 1.0f) > 0.001f)
             GD.PushWarning($"Curse card {Name} chance total is not 1.0: {total}");
     }
-    
+
     public static CardData EnergyStrike = new CardData()
     {
         Id = "energy_strike",
@@ -154,7 +154,7 @@ public class CardData
         VisualKey = "attack_sword",
         BorderColor = "#FF4444"
     };
-    
+
     public static CardData BreakCore = new CardData()
     {
         Id = "break_core",
@@ -183,7 +183,7 @@ public class CardData
         VisualKey = "attack_axe",
         BorderColor = "#FF4444"
     };
-    
+
     public static CardData QuickStrike = new CardData()
     {
         Id = "quick_strike",
@@ -201,7 +201,7 @@ public class CardData
         VisualKey = "attack_fist",
         BorderColor = "#FF4444"
     };
-    
+
     public static CardData VulnerableStrike = new CardData()
     {
         Id = "vulnerable_strike",
@@ -230,7 +230,7 @@ public class CardData
         VisualKey = "attack_pierce",
         BorderColor = "#FF4444"
     };
-    
+
     public static CardData CriticalHit = new CardData()
     {
         Id = "critical_hit",
@@ -258,7 +258,7 @@ public class CardData
         VisualKey = "attack_critical",
         BorderColor = "#FF4444"
     };
-    
+
     public static CardData HeavyStrike = new CardData()
     {
         Id = "heavy_strike",
@@ -276,7 +276,7 @@ public class CardData
         VisualKey = "attack_hammer",
         BorderColor = "#FF4444"
     };
-    
+
     public static CardData EnergyBarrier = new CardData()
     {
         Id = "energy_barrier",
@@ -294,7 +294,7 @@ public class CardData
         VisualKey = "defense_shield",
         BorderColor = "#4444FF"
     };
-    
+
     public static CardData Adrenaline = new CardData()
     {
         Id = "adrenaline",
@@ -313,7 +313,7 @@ public class CardData
         VisualKey = "buff_energy",
         BorderColor = "#44FF44"
     };
-    
+
     public static CardData WeakPulse = new CardData()
     {
         Id = "weak_pulse",
@@ -333,7 +333,7 @@ public class CardData
         VisualKey = "debuff_weak",
         BorderColor = "#AA44FF"
     };
-    
+
     public static CardData EnergyPotion = new CardData()
     {
         Id = "energy_potion",
@@ -351,7 +351,7 @@ public class CardData
         VisualKey = "consumable_potion",
         BorderColor = "#FF8800"
     };
-    
+
     public static CardData IronSword = new CardData()
     {
         Id = "iron_sword",
@@ -371,7 +371,7 @@ public class CardData
         VisualKey = "equip_sword",
         BorderColor = "#CCCCCC"
     };
-    
+
     public static CardData Clumsy = new CardData()
     {
         Id = "clumsy",
@@ -394,7 +394,7 @@ public class CardData
         VisualKey = "curse_clumsy",
         BorderColor = "#8A2BE2"
     };
-    
+
     public static CardData Wound = new CardData()
     {
         Id = "wound",
@@ -417,7 +417,7 @@ public class CardData
         VisualKey = "curse_wound",
         BorderColor = "#8B0000"
     };
-    
+
     public void GetDamageRange(int diceSides, out int min, out int max)
     {
         if (DamageFormula == null)
@@ -426,24 +426,24 @@ public class CardData
             max = 0;
             return;
         }
-        
+
         var tempCard = new CardInstance(this);
-        
+
         if (DiceCost == 0)
         {
             min = DamageFormula(tempCard, null);
             max = min;
             return;
         }
-        
+
         var minDice = new DiceInstance(diceSides);
         minDice.Value = 1;
         var maxDice = new DiceInstance(diceSides);
         maxDice.Value = diceSides;
-        
+
         min = DamageFormula(tempCard, minDice);
         max = DamageFormula(tempCard, maxDice);
-        
+
         if (ModifyDamage != null)
         {
             min = ModifyDamage(tempCard, minDice, min);

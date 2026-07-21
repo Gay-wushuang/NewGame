@@ -18,17 +18,17 @@ color = Color(0, 0, 0, 0.5)
 mouse_filter = 0
 
 [node name="BrowserPanel" type="PanelContainer" parent="."]
-custom_minimum_size = Vector2(600, 400)
+custom_minimum_size = Vector2(1040, 600)
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.5
 anchor_right = 0.5
 anchor_top = 0.5
 anchor_bottom = 0.5
-offset_left = -300.0
-offset_top = -200.0
-offset_right = 300.0
-offset_bottom = 200.0
+offset_left = -520.0
+offset_top = -300.0
+offset_right = 520.0
+offset_bottom = 300.0
 
 [node name="BrowserVBox" type="VBoxContainer" parent="BrowserPanel"]
 layout_mode = 2
@@ -38,7 +38,7 @@ size_flags_vertical = 3
 [node name="TitleLabel" type="Label" parent="BrowserPanel/BrowserVBox"]
 custom_minimum_size = Vector2(0, 30)
 layout_mode = 2
-text = "抽牌堆"
+text = "Draw Pile"
 horizontal_alignment = 1
 
 [node name="ContentHBox" type="HBoxContainer" parent="BrowserPanel/BrowserVBox"]
@@ -50,13 +50,15 @@ size_flags_vertical = 3
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+horizontal_scroll_mode = 0
 
-[node name="CardList" type="VBoxContainer" parent="BrowserPanel/BrowserVBox/ContentHBox/CardScroll"]
+[node name="CardList" type="GridContainer" parent="BrowserPanel/BrowserVBox/ContentHBox/CardScroll"]
 layout_mode = 2
 size_flags_horizontal = 3
+columns = 4
 
 [node name="MiniPreviewPanel" type="PanelContainer" parent="BrowserPanel/BrowserVBox/ContentHBox"]
-custom_minimum_size = Vector2(200, 0)
+custom_minimum_size = Vector2(300, 0)
 layout_mode = 2
 
 [node name="MiniPreviewVBox" type="VBoxContainer" parent="BrowserPanel/BrowserVBox/ContentHBox/MiniPreviewPanel"]
@@ -66,7 +68,7 @@ size_flags_vertical = 3
 
 [node name="MiniCostLabel" type="Label" parent="BrowserPanel/BrowserVBox/ContentHBox/MiniPreviewPanel/MiniPreviewVBox"]
 layout_mode = 2
-text = "消耗"
+text = "Cost"
 
 [node name="MiniRuleLabel" type="Label" parent="BrowserPanel/BrowserVBox/ContentHBox/MiniPreviewPanel/MiniPreviewVBox"]
 layout_mode = 2
@@ -84,4 +86,5 @@ text = ""
 [node name="CloseButton" type="Button" parent="BrowserPanel/BrowserVBox"]
 custom_minimum_size = Vector2(100, 30)
 layout_mode = 2
-text = "关闭"
+text = "Close"
+

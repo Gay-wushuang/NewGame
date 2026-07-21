@@ -1,4 +1,4 @@
-﻿using Godot;
+using Godot;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -10,7 +10,7 @@ public partial class BattleManager : Node
     public bool IsPlayerTurn = true;
     public bool IsBattleActive { get; private set; } = true;
     public DiceRoller DiceRoller;
-    
+
     public override void _Ready()
     {
         DiceRoller = new DiceRoller();
@@ -19,16 +19,16 @@ public partial class BattleManager : Node
             InitializeBattle();
         }
     }
-    
+
     public void InitializeBattle()
     {
         var player = new PlayerState(DiceRoller);
         var enemy = new EnemyState("TrainingBeast", 20);
         enemy.CurrentIntent.SetAttack(14);
-        
+
         InitializeBattle(player, enemy, DiceRoller);
     }
-    
+
     public void InitializeBattle(PlayerState player, EnemyState enemy, DiceRoller diceRoller = null)
     {
         DiceRoller = diceRoller ?? DiceRoller ?? new DiceRoller();
@@ -45,11 +45,11 @@ public partial class BattleManager : Node
         Player.DrawPile.Clear();
         Player.DiscardPile.Clear();
         Player.ExhaustPile.Clear();
-        
+
         Player.InitDrawPileFromDeck();
         StartPlayerTurn();
     }
-    
+
     private void EnsureDefaultDeck()
     {
         if (Player.Deck.Count > 0)
@@ -67,36 +67,36 @@ public partial class BattleManager : Node
             Player.Deck.Add(new CardInstance(cardData));
         }
     }
-    
+
     public void StartPlayerTurn()
     {
         IsPlayerTurn = true;
-        
+
         if (Player.Shield > 0)
         {
             EmitSignal(SignalName.BattleLog, $"Shield cleared: {Player.Shield}");
             Player.Shield = 0;
         }
-        
+
         if (Player.NextTurnEnergyBonus > 0)
         {
             Player.RestoreEnergy(Player.NextTurnEnergyBonus);
             EmitSignal(SignalName.BattleLog, $"Adrenaline triggered: restore {Player.NextTurnEnergyBonus} extra Energy");
             Player.NextTurnEnergyBonus = 0;
         }
-        
+
         int energyBefore = Player.Energy;
         Player.RestoreEnergy(Player.MaxEnergy);
-        
+
         TriggerCurseEffects();
-        
+
         Player.RefreshDicePool();
-        
+
         int drawCount = 3;
         int drawReduction = 0;
         foreach (var card in Player.Hand)
         {
-            if (card.Data.Subtype == CardSubtype.Curse && 
+            if (card.Data.Subtype == CardSubtype.Curse &&
                 card.Data.CurseTrigger == CurseTriggerType.DrawReduction &&
                 card.HasTriggeredThisTurn)
             {
@@ -104,26 +104,26 @@ public partial class BattleManager : Node
             }
         }
         int finalDrawCount = Mathf.Max(0, drawCount - drawReduction);
-        
+
         int drawn = Player.DrawCards(finalDrawCount);
         if (drawn > 0)
             EmitSignal(SignalName.BattleLog, $"Draw cards: {drawn}");
-        
+
         EmitSignal(SignalName.PlayerTurnStarted, Turn);
         EmitSignal(SignalName.BattleLog, $"Turn {Turn} started");
         EmitSignal(SignalName.BattleLog, $"Restore Energy: {energyBefore} -> {Player.Energy}");
         EmitSignal(SignalName.BattleLog, $"Gain dice pool: {Player.DiceCount}d{Player.DiceSides}");
     }
-    
+
     public bool TryPlayCard(CardInstance card)
     {
         if (!IsPlayerTurn)
             return false;
-        
+
         if (card.Data.Subtype == CardSubtype.Curse)
         {
             Player.Hand.Remove(card);
-            
+
             int totalEffect = card.CurseStacks * card.Data.CurseEffectAmount;
             switch (card.Data.CurseTrigger)
             {
@@ -145,7 +145,7 @@ public partial class BattleManager : Node
                     EmitSignal(SignalName.BattleLog, $"{card.Data.Name} played: draw reduction {totalEffect}");
                     break;
             }
-            
+
             float roll = GD.Randf();
             if (roll < card.Data.CurseDisappearChance)
             {
@@ -162,7 +162,7 @@ public partial class BattleManager : Node
                 EmitSignal(SignalName.BattleLog, $"{card.Data.Name} stayed ({card.CurseStacks} stacks)");
                 Player.DrawPile.Insert(0, card);
             }
-            
+
             if (!Player.IsAlive())
             {
                 IsBattleActive = false;
@@ -171,14 +171,14 @@ public partial class BattleManager : Node
                 EmitSignal(SignalName.CardResolved, card.Data.Id, card.Data.Subtype.ToString());
                 return true;
             }
-            
+
             EmitSignal(SignalName.CardResolved, card.Data.Id, card.Data.Subtype.ToString());
             return true;
         }
-        
+
         if (!Player.CanPlayCard(card))
             return false;
-        
+
         int energyBeforePlay = Player.Energy;
         List<DiceInstance> consumedDiceList = null;
         DiceInstance consumedDice = null;
@@ -191,23 +191,23 @@ public partial class BattleManager : Node
         }
 
         Player.ConsumeEnergy(card.Data.EnergyCost);
-        
+
         EmitSignal(SignalName.BattleLog, $"Play {card.Data.Name}");
         EmitSignal(SignalName.BattleLog, $"Spend Energy: {card.Data.EnergyCost}");
         if (card.Data.DiceCost > 0)
         {
             EmitSignal(SignalName.BattleLog, $"Dice result: {consumedDice?.Value ?? 0}");
         }
-        
+
         bool success = ProcessCardBySubtype(card, consumedDice);
-        
+
         if (!success)
         {
             Player.Energy = energyBeforePlay;
             Player.RestoreDice(consumedDiceList);
             return false;
         }
-        
+
         if (!Enemy.IsAlive())
         {
             IsBattleActive = false;
@@ -215,10 +215,10 @@ public partial class BattleManager : Node
             EmitSignal(SignalName.BattleLog, "Victory!");
             return true;
         }
-        
+
         return true;
     }
-    
+
     private bool ProcessCardBySubtype(CardInstance card, DiceInstance consumedDice)
     {
         bool success;
@@ -249,73 +249,73 @@ public partial class BattleManager : Node
                 success = ProcessAttackCard(card, consumedDice);
                 break;
         }
-        
+
         if (success)
         {
             EmitSignal(SignalName.CardResolved, card.Data.Id, card.Data.Subtype.ToString());
         }
-        
+
         return success;
     }
-    
+
     private bool ProcessAttackCard(CardInstance card, DiceInstance consumedDice)
     {
         if (card.Data.Category == CardCategory.Consumable)
             Player.MoveToExhaust(card);
         else
             Player.MoveToDiscard(card);
-        
+
         int baseDamage = card.CalculateDamage(consumedDice);
-        
+
         if (Player.EquippedWeaponBonus > 0 && card.Data.Subtype == CardSubtype.Attack)
         {
             baseDamage += Player.EquippedWeaponBonus;
             EmitSignal(SignalName.BattleLog, $"Weapon bonus: +{Player.EquippedWeaponBonus}");
         }
-        
+
         if (card.Data.ModifyDamage != null && consumedDice != null)
         {
             baseDamage = card.Data.ModifyDamage(card, consumedDice, baseDamage);
         }
-        
+
         int finalDamage = Enemy.TakeDamage(baseDamage);
         int vulnerableBeforeEffect = Enemy.GetVulnerableStacks();
-        
+
         if (card.Data.ApplyEffect != null)
         {
             card.Data.ApplyEffect(card, consumedDice, Enemy);
         }
-        
+
         int vulnerableAdded = Mathf.Max(0, Enemy.GetVulnerableStacks() - vulnerableBeforeEffect);
         int diceResult = consumedDice?.Value ?? -1;
-        
+
         EmitSignal(SignalName.CardPlayed, card.Data.Id, finalDamage, diceResult, vulnerableAdded);
         EmitSignal(SignalName.BattleLog, $"Deal damage: {finalDamage}");
-        
+
         if (vulnerableAdded > 0)
         {
             EmitSignal(SignalName.BattleLog, $"Apply Vulnerable: {vulnerableAdded}");
         }
-        
+
         return true;
     }
-    
+
     private bool ProcessDefenseCard(CardInstance card, DiceInstance consumedDice)
     {
         if (card.Data.Category == CardCategory.Consumable)
             Player.MoveToExhaust(card);
         else
             Player.MoveToDiscard(card);
-        
+
         int shieldAmount = card.Data.ShieldValue;
         if (consumedDice != null && consumedDice.Value.HasValue)
         {
             shieldAmount += consumedDice.Value.Value;
         }
-        
+
         Player.Shield += shieldAmount;
         EmitSignal(SignalName.BattleLog, $"Gain shield: {shieldAmount}");
-        
+
         if (card.Data.CounterDamage > 0)
         {
             int counterDamage = card.Data.CounterDamage;
@@ -326,17 +326,17 @@ public partial class BattleManager : Node
             Enemy.TakeDamage(counterDamage);
             EmitSignal(SignalName.BattleLog, $"Counter damage: {counterDamage}");
         }
-        
+
         return true;
     }
-    
+
     private bool ProcessPositiveBuffCard(CardInstance card, DiceInstance consumedDice)
     {
         if (card.Data.Category == CardCategory.Consumable)
             Player.MoveToExhaust(card);
         else
             Player.MoveToDiscard(card);
-        
+
         if (card.Data.AppliedBuffType.HasValue)
         {
             switch (card.Data.AppliedBuffType.Value)
@@ -359,24 +359,24 @@ public partial class BattleManager : Node
                     break;
             }
         }
-        
+
         return true;
     }
-    
+
     private bool ProcessNegativeBuffCard(CardInstance card, DiceInstance consumedDice)
     {
         if (card.Data.Category == CardCategory.Consumable)
             Player.MoveToExhaust(card);
         else
             Player.MoveToDiscard(card);
-        
+
         if (card.Data.DamageFormula != null)
         {
             int baseDamage = card.CalculateDamage(consumedDice);
             int finalDamage = Enemy.TakeDamage(baseDamage);
             EmitSignal(SignalName.BattleLog, $"Deal damage: {finalDamage}");
         }
-        
+
         if (card.Data.AppliedDebuffType.HasValue)
         {
             switch (card.Data.AppliedDebuffType.Value)
@@ -395,10 +395,10 @@ public partial class BattleManager : Node
                     break;
             }
         }
-        
+
         return true;
     }
-    
+
     private bool ProcessBattleConsumableCard(CardInstance card, DiceInstance consumedDice)
     {
         if (card.RemainingUses <= 0)
@@ -406,12 +406,12 @@ public partial class BattleManager : Node
             EmitSignal(SignalName.BattleLog, $"{card.Data.Name} has no uses left");
             return false;
         }
-        
+
         card.RemainingUses--;
         int restoreAmount = card.Data.EffectAmount + (consumedDice?.Value.GetValueOrDefault() ?? 0);
         Player.RestoreEnergy(restoreAmount);
         EmitSignal(SignalName.BattleLog, $"Restore Energy: {restoreAmount}");
-        
+
         if (card.RemainingUses <= 0)
         {
             Player.MoveToExhaust(card);
@@ -419,19 +419,19 @@ public partial class BattleManager : Node
         }
         if (Player.Hand.Contains(card))
             Player.MoveToDiscard(card);
-        
+
         return true;
     }
-    
+
     private bool ProcessGameConsumableCard(CardInstance card, DiceInstance consumedDice)
     {
         Player.Hp = Mathf.Min(Player.Hp + card.Data.EffectAmount, Player.MaxHp);
         Player.MoveToExhaust(card);
         EmitSignal(SignalName.BattleLog, $"Restore HP: {card.Data.EffectAmount}");
-        
+
         return true;
     }
-    
+
     private bool ProcessEquipmentCard(CardInstance card)
     {
         if (card.Data.EquipSlot.HasValue)
@@ -448,23 +448,23 @@ public partial class BattleManager : Node
         {
             Player.MoveToDiscard(card);
         }
-        
+
         return true;
     }
-    
+
     private void TriggerCurseEffects()
     {
         foreach (var card in Player.Hand.ToList())
         {
             if (card.Data.Subtype != CardSubtype.Curse)
                 continue;
-            
+
             if (card.HasTriggeredThisTurn)
                 continue;
-            
+
             card.HasTriggeredThisTurn = true;
             int totalEffect = card.CurseStacks * card.Data.CurseEffectAmount;
-            
+
             switch (card.Data.CurseTrigger)
             {
                 case CurseTriggerType.HandSizeReduction:
@@ -487,11 +487,11 @@ public partial class BattleManager : Node
             }
         }
     }
-    
+
     private void CleanupTemporaryCurses()
     {
         int removedCount = 0;
-        
+
         for (int i = Player.Hand.Count - 1; i >= 0; i--)
         {
             if (Player.Hand[i].Data.CurseDuration == CurseDurationType.Temporary)
@@ -500,7 +500,7 @@ public partial class BattleManager : Node
                 removedCount++;
             }
         }
-        
+
         for (int i = Player.DrawPile.Count - 1; i >= 0; i--)
         {
             if (Player.DrawPile[i].Data.CurseDuration == CurseDurationType.Temporary)
@@ -509,7 +509,7 @@ public partial class BattleManager : Node
                 removedCount++;
             }
         }
-        
+
         for (int i = Player.DiscardPile.Count - 1; i >= 0; i--)
         {
             if (Player.DiscardPile[i].Data.CurseDuration == CurseDurationType.Temporary)
@@ -518,7 +518,7 @@ public partial class BattleManager : Node
                 removedCount++;
             }
         }
-        
+
         for (int i = Player.Deck.Count - 1; i >= 0; i--)
         {
             if (Player.Deck[i].Data.CurseDuration == CurseDurationType.Temporary)
@@ -527,17 +527,17 @@ public partial class BattleManager : Node
                 removedCount++;
             }
         }
-        
+
         Player.CurseHandSizeModifier = 0;
-        
+
         if (removedCount > 0)
             GD.Print($"Cleaned temporary curses: {removedCount}");
     }
-    
+
     public void EndPlayerTurn()
     {
         IsPlayerTurn = false;
-        
+
         foreach (var card in Player.Hand)
             if (card.Data.Subtype == CardSubtype.Curse)
                 card.HasTriggeredThisTurn = false;
@@ -547,19 +547,19 @@ public partial class BattleManager : Node
         foreach (var card in Player.DiscardPile)
             if (card.Data.Subtype == CardSubtype.Curse)
                 card.HasTriggeredThisTurn = false;
-        
+
         Player.EndTurn();
         Player.DiscardHand();
         EmitSignal(SignalName.PlayerTurnEnded);
-        
+
         CallDeferred(nameof(ExecuteEnemyTurn));
     }
-    
+
     public void ExecuteEnemyTurn()
     {
         if (!Enemy.IsAlive())
             return;
-        
+
         switch (Enemy.CurrentIntent.Type)
         {
             case EnemyIntent.IntentType.Attack:
@@ -578,20 +578,20 @@ public partial class BattleManager : Node
                 EmitSignal(SignalName.BattleLog, $"{Enemy.Name} uses debuff intent: {Enemy.CurrentIntent.Value} (not implemented)");
                 break;
         }
-        
+
         int vulnerableBefore = Enemy.GetVulnerableStacks();
         Enemy.EndTurn();
         int vulnerableAfter = Enemy.GetVulnerableStacks();
-        
+
         if (vulnerableBefore > vulnerableAfter)
         {
             EmitSignal(SignalName.BattleLog, $"Vulnerable reduced: {vulnerableBefore} -> {vulnerableAfter}");
         }
-        
+
         Turn++;
         StartPlayerTurn();
     }
-    
+
     private void ExecuteEnemyAttack()
     {
         int damage = Enemy.CurrentIntent.Value;
@@ -600,29 +600,29 @@ public partial class BattleManager : Node
             EmitSignal(SignalName.BattleLog, $"{Enemy.Name} does nothing");
             return;
         }
-        
+
         int weakReduction = Enemy.GetWeakStacks();
         int finalDamage = Mathf.Max(0, damage - weakReduction);
-        
+
         if (weakReduction > 0)
         {
             EmitSignal(SignalName.BattleLog, $"Weak reduced damage: {damage} -> {finalDamage}");
         }
-        
+
         int energyBefore = Player.Energy;
         int hpBefore = Player.Hp;
         int shieldAbsorbed = Player.TakeDamage(finalDamage);
-        
+
         if (shieldAbsorbed > 0)
         {
             EmitSignal(SignalName.BattleLog, $"Shield absorbed: {shieldAbsorbed}, remaining shield: {Player.Shield}");
         }
-        
+
         EmitSignal(SignalName.EnemyAttacked, finalDamage, energyBefore, Player.Energy, hpBefore, Player.Hp);
         EmitSignal(SignalName.BattleLog, $"{Enemy.Name} attacks: {finalDamage}");
         EmitSignal(SignalName.BattleLog, $"Energy: {energyBefore} -> {Player.Energy}");
         EmitSignal(SignalName.BattleLog, $"HP: {hpBefore} -> {Player.Hp}");
-        
+
         if (!Player.IsAlive())
         {
             IsBattleActive = false;
@@ -630,7 +630,7 @@ public partial class BattleManager : Node
             EmitSignal(SignalName.BattleLog, "Defeat!");
         }
     }
-    
+
     public void SkipTurn()
     {
         if (IsPlayerTurn)
@@ -638,7 +638,7 @@ public partial class BattleManager : Node
             EndPlayerTurn();
         }
     }
-    
+
     [Signal] public delegate void PlayerTurnStartedEventHandler(int turn);
     [Signal] public delegate void PlayerTurnEndedEventHandler();
     [Signal] public delegate void CardPlayedEventHandler(string cardId, int damage, int diceResult, int vulnerableAdded);
