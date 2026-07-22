@@ -125,6 +125,7 @@ public partial class BattleUI : Control
     public void OnCardResolved(string cardId, string subtype)
     {
         _cardPreviewPanel.Visible = false;
+        _previewingCardIndex = -1;
         UpdateUI();
     }
 
